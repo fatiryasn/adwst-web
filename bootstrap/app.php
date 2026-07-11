@@ -20,8 +20,6 @@ return Application::configure(basePath: dirname(__DIR__))
         $middleware->web(append: [
             CaptureReferral::class,
         ]);
-    })
-    ->withMiddleware(function (Middleware $middleware) {
         $middleware->alias([
             'api.key' => EnsureValidApiKey::class,
         ]);
