@@ -19,8 +19,8 @@
         <p class="text-sm text-gray-500 mt-1 line-clamp-2 flex-1">{{ Str::limit($dest->description, 80) }}</p>
         <div class="mt-3 pt-3 border-t border-gray-100 flex items-center justify-between">
             <div class="flex items-center gap-2">
-                <x-heroicon-o-ticket class="w-5 h-5 text-secondary" />
-                <span class="text-secondary font-bold text-lg">{{ 'Rp ' . number_format($dest->ticket_price, 0, ',', '.') }}</span>
+                <x-heroicon-o-map-pin class="w-5 h-5 text-secondary" />
+                <span class="text-secondary font-semibold">{{ Str::limit($dest->address, 80) }}</span>
             </div>
             <span class="text-xs text-gray-400 flex items-center gap-1">
                 <x-heroicon-o-arrow-right class="w-3.5 h-3.5" />

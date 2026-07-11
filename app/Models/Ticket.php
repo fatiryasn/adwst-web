@@ -21,6 +21,7 @@ class Ticket extends Model
     protected $fillable = [
         'code',
         'destination_id',
+        'cottage_id',
         'affiliate_id',
         'customer_name',
         'customer_phone',
@@ -65,11 +66,15 @@ class Ticket extends Model
     {
         return $this->belongsTo(User::class, 'payment_verified_by');
     }
-
     //RELATIONS: affiliate points
     public function affiliatePoints()
     {
         return $this->hasMany(AffiliatePoint::class);
+    }
+    //RELATION: cottage
+    public function cottage()
+    {
+        return $this->belongsTo(Cottage::class);
     }
 
     //CONSTANTS

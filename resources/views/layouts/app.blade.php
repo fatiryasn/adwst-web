@@ -14,16 +14,15 @@
 <body class="bg-white font-poppins antialiased">
 
     <!-- NAVBAR -->
-    <header x-data="{ atTop: window.location.pathname === '/' && window.pageYOffset === 0 }"
-        @scroll.window="atTop = window.location.pathname === '/' && window.pageYOffset === 0"
+    <header x-data="{ atTop: window.location.pathname === '/' && window.pageYOffset === 0, mobileMenuOpen: false }" @scroll.window="atTop = window.location.pathname === '/' && window.pageYOffset === 0"
         :class="atTop ? 'bg-transparent border-transparent shadow-none' : 'bg-white backdrop-blur-md shadow-sm border-b border-gray-100'"
         class="fixed top-0 left-0 right-0 z-50 transition-all duration-300">
-        <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+        <div class="max-w-7xl mx-auto px-6 lg:px-8">
             <div class="flex justify-between items-center h-16 lg:h-20">
 
                 <!-- logo -->
                 <div class="flex-shrink-0">
-                    <a href="{{ url('/') }}" class="text-2xl font-bold text-secondary">
+                    <a href="{{ url('/') }}" class="text-xl md:text-2xl font-bold text-secondary">
                         Admin<span class="font-nunito">Wisata</span>
                     </a>
                 </div>
@@ -49,7 +48,8 @@
 
                 <!-- mobile ham button -->
                 <div class="lg:hidden">
-                    <button @click="mobileMenuOpen = !mobileMenuOpen" class="text-gray-700 hover:text-secondary focus:outline-none">
+                    <button @click="mobileMenuOpen = !mobileMenuOpen" :class="atTop ? 'text-white hover:text-gray-200' : 'text-gray-700 hover:text-secondary'"
+                        class="text-gray-700 hover:text-secondary focus:outline-none">
                         <x-heroicon-o-bars-3 x-show="!mobileMenuOpen" class="w-6 h-6" />
                         <x-heroicon-o-x-mark x-show="mobileMenuOpen" class="w-6 h-6" />
                     </button>
@@ -88,7 +88,7 @@
 
     <!-- FOOTER -->
     <footer class="bg-dark-secondary">
-        <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 pb-3 lg:pt-16">
+        <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 pb-3 pt-16">
             <div class="grid grid-cols-1 md:grid-cols-3 gap-10">
 
                 <!-- brand -->

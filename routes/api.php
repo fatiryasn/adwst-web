@@ -14,3 +14,4 @@ Route::middleware('api.key')->group(function () {
     //test api key validity
     Route::get('/ping', [TicketController::class, 'ping']);
 });
+

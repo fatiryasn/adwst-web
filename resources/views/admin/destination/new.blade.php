@@ -21,8 +21,13 @@
         submitting: false,
         thumbnailPreview: null,
         fileInput: null,
+        cottages: [],
         init() {
             this.fileInput = this.$refs.fileInput;
+            // Start with one empty cottage if none
+            if (this.cottages.length === 0) {
+                this.addCottage();
+            }
         },
         triggerFileInput() {
             this.fileInput.click();
@@ -34,6 +39,12 @@
         clearThumbnail() {
             this.thumbnailPreview = null;
             this.fileInput.value = '';
+        },
+        addCottage() {
+            this.cottages.push({ name: '', description: '', price: '' });
+        },
+        removeCottage(index) {
+            this.cottages.splice(index, 1);
         }
     }" class="bg-surface rounded-xl shadow border border-gray-200 p-6">
         <h2 class="text-xl font-semibold text-gray-800 mb-6 font-jakarta">Tambah Destinasi</h2>
@@ -67,21 +78,6 @@
                     autocomplete="off"
                     class="w-full border border-gray-200 rounded-lg shadow px-5 py-2 focus:outline-none">{{ old('description') }}</textarea>
                 <p class="mt-1 text-[10px] text-gray-500">Opsional. Deskripsi detail destinasi.</p>
-            </div>
-
-            <!-- ticket price -->
-            <div>
-                <label for="ticket_price" class="block text-sm font-medium text-gray-700 mb-1">
-                    Harga Tiket (Rp) <span class="text-red-500">*</span>
-                </label>
-                <input type="number" name="ticket_price" id="ticket_price"
-                    value="{{ old('ticket_price') }}"
-                    placeholder="cth: 50000"
-                    autocomplete="off"
-                    min="0" step="0.01"
-                    class="w-full border border-gray-200 rounded-lg shadow px-5 py-2 focus:outline-none"
-                    required>
-                <p class="mt-1 text-[10px] text-gray-500">Harga tiket dalam Rupiah. Gunakan angka tanpa titik/koma (contoh: 75000).</p>
             </div>
 
             <!-- address -->
@@ -141,7 +137,6 @@
                         <template x-if="thumbnailPreview">
                             <div class="relative inline-block">
                                 <img :src="thumbnailPreview" alt="Thumbnail Preview" class="h-32 w-48 object-cover rounded border">
-                                <!-- Remove button -->
                                 <button type="button" @click="clearThumbnail()"
                                     class="absolute -top-2 -right-2 bg-red-500 text-white rounded-full p-1 shadow hover:bg-red-600 transition"
                                     title="Hapus gambar">
@@ -174,14 +169,69 @@
                 @enderror
             </div>
 
+            <!-- COTTAGES REPEATER -->
+            <div class="border-t pt-6">
+                <h3 class="text-lg font-semibold text-gray-800 mb-3 font-jakarta">Pondok</h3>
+                <p class="text-xs text-gray-500 mb-4">Tambahkan pondok yang tersedia di destinasi ini beserta harganya.</p>
+
+                <div class="space-y-4">
+                    <template x-for="(cottage, index) in cottages" :key="index">
+                        <div class="bg-gray-50 rounded-xl p-4 relative border border-gray-200">
+                            <button type="button" @click="removeCottage(index)"
+                                class="absolute top-2 right-2 text-gray-400 hover:text-red-500 transition"
+                                :disabled="submitting"
+                                title="Hapus cottage">
+                                <x-heroicon-o-x-circle class="w-5 h-5" />
+                            </button>
+
+                            <div class="grid grid-cols-1 md:grid-cols-3 gap-3">
+                                <div>
+                                    <label class="block text-xs text-gray-600 mb-1">Nama <span class="text-red-500">*</span></label>
+                                    <input type="text" :name="`cottages[${index}][name]`" x-model="cottage.name"
+                                        placeholder="cth: Deluxe Suite"
+                                        class="w-full border border-gray-200 rounded-lg px-3 py-2 text-sm focus:outline-none bg-surface shadow"
+                                        required>
+                                </div>
+                                <div class="md:col-span-2">
+                                    <label class="block text-xs text-gray-600 mb-1">Deskripsi</label>
+                                    <input type="text" :name="`cottages[${index}][description]`" x-model="cottage.description"
+                                        placeholder="Deskripsi singkat"
+                                        class="w-full border border-gray-200 rounded-lg px-3 py-2 text-sm focus:outline-none bg-surface shadow">
+                                </div>
+                                <div>
+                                    <label class="block text-xs text-gray-600 mb-1">Harga (Rp) <span class="text-red-500">*</span></label>
+                                    <input type="number" :name="`cottages[${index}][price]`" x-model="cottage.price"
+                                        placeholder="cth: 250000"
+                                        min="0" step="0.01"
+                                        class="w-full border border-gray-200 rounded-lg px-3 py-2 text-sm focus:outline-none bg-surface shadow"
+                                        required>
+                                </div>
+                            </div>
+                        </div>
+                    </template>
+
+                    <button type="button" @click="addCottage"
+                        :disabled="submitting"
+                        class="inline-flex items-center text-secondary hover:text-secondary/80 font-medium text-sm transition">
+                        <x-heroicon-o-plus-circle class="w-5 h-5 mr-1" />
+                        Tambah Cottage
+                    </button>
+                </div>
+                @error('cottages.*')
+                <p class="mt-1 text-sm text-red-600">{{ $message }}</p>
+                @enderror
+            </div>
+
             <!-- buttons -->
             <div class="flex justify-end gap-3 pt-2">
                 <button type="button"
                     @click="
-                            $refs.form.reset();
-                            document.getElementById('status').value = 'active';
-                            clearThumbnail();
-                        "
+                        $refs.form.reset();
+                        document.getElementById('status').value = 'active';
+                        clearThumbnail();
+                        cottages = [];
+                        addCottage(); // keep one empty cottage
+                    "
                     :disabled="submitting"
                     class="bg-gray-200 hover:bg-gray-300 text-gray-700 font-medium px-5 py-2 rounded-lg transition disabled:opacity-50 disabled:cursor-not-allowed">
                     Clear
@@ -203,7 +253,6 @@
         </form>
     </div>
 </div>
-
 
 {{-- SweetAlert partial --}}
 @include('partials.sweetalert')

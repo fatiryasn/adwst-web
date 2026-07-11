@@ -43,7 +43,8 @@
                 data-customer="{{ $ticket->customer_name }}"
                 data-phone="{{ $ticket->customer_phone }}"
                 data-visit-date="{{ $ticket->visit_date ? $ticket->visit_date->format('d M Y') : '' }}"
-                data-departure-date="{{ $ticket->departure_date ? $ticket->departure_date->format('d M Y') : '' }}">
+                data-departure-date="{{ $ticket->departure_date ? $ticket->departure_date->format('d M Y') : '' }}"
+                data-cottage="{{ $ticket->cottage->name ?? '' }}">
 
                 <div class="flex items-center justify-between bg-gray-50 rounded-xl px-4 py-3 mb-3">
                     <div>
@@ -67,8 +68,12 @@
                     <div class="bg-gray-50 rounded-xl px-4 py-3">
                         <p class="text-xs text-gray-500 uppercase tracking-wide mb-2">Detail Perjalanan</p>
                         <div class="space-y-1">
-                            <p class="text-sm font-medium text-gray-800">{{ $ticket->destination->name }}</p>
-                            @if ($ticket->visit_date || $ticket->departure_date)
+                            <p class="text-sm font-medium text-gray-800">
+                                {{ $ticket->destination->name }}
+                                @if($ticket->cottage)
+                                ({{ $ticket->cottage->name }})
+                                @endif
+                            </p> @if ($ticket->visit_date || $ticket->departure_date)
                             <p class="text-sm text-gray-600">
                                 {{ $ticket->visit_date?->format('d M Y') ?? '' }}
                                 {{ $ticket->departure_date ? ' → ' . $ticket->departure_date->format('d M Y') : '' }}
@@ -141,6 +146,7 @@
             const phone = container.dataset.phone;
             const visitDate = container.dataset.visitDate || '';
             const departureDate = container.dataset.departureDate || '';
+            const cottage = container.dataset.cottage || '';
 
             const {
                 jsPDF
@@ -221,7 +227,7 @@
             addRow('Kode Tiket', code, true);
             addRow('Nama', customer);
             addRow('Telepon', phone);
-            addRow('Destinasi', destination);
+            addRow('Destinasi', destination + (cottage ? ' (' + cottage + ')' : ''), true);
             addRow('Harga', price, true);
 
             // Visit / Departure dates on same line if both exist

@@ -161,7 +161,12 @@
             </h3>
             <dl class="grid grid-cols-2 gap-3 text-sm">
                 <dt class="text-gray-600 font-nunito">Nama</dt>
-                <dd class="font-medium text-gray-800">{{ $ticket->destination->name ?? '—' }}</dd>
+                <dd class="font-medium text-gray-800">
+                    {{ $ticket->destination->name ?? '—' }}
+                    @if($ticket->cottage)
+                    ({{ $ticket->cottage->name }})
+                    @endif
+                </dd>
                 <dt class="text-gray-600 font-nunito">Harga Tiket</dt>
                 <dd>Rp {{ number_format($ticket->ticket_price, 0, ',', '.') }}</dd>
                 @if ($ticket->destination->address)
@@ -273,6 +278,7 @@
     <div id="ticket-data-container"
         data-code="{{ $ticket->code }}"
         data-destination="{{ $ticket->destination->name }}"
+        data-cottage="{{ $ticket->cottage->name ?? '' }}"
         data-price="Rp {{ number_format($ticket->ticket_price, 0, ',', '.') }}"
         data-customer="{{ $ticket->customer_name }}"
         data-phone="{{ $ticket->customer_phone }}"
@@ -394,6 +400,7 @@
             const phone = dataContainer.dataset.phone;
             const visitDate = dataContainer.dataset.visitDate || '';
             const departureDate = dataContainer.dataset.departureDate || '';
+            const cottage = dataContainer.dataset.cottage || '';
 
             const {
                 jsPDF
@@ -470,7 +477,7 @@
             addRow('Kode Tiket', code, true);
             addRow('Nama', customer);
             addRow('Telepon', phone);
-            addRow('Destinasi', destination);
+            addRow('Destinasi', destination + (cottage ? ' (' + cottage + ')' : ''), true);
             addRow('Harga', price, true);
 
             if (visitDate || departureDate) {

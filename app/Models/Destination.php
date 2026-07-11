@@ -22,7 +22,6 @@ class Destination extends Model
         'name',
         'slug',
         'description',
-        'ticket_price',
         'address',
         'latitude',
         'longitude',
@@ -34,7 +33,6 @@ class Destination extends Model
     protected function casts(): array
     {
         return [
-            'ticket_price' => 'decimal:2',
             'latitude' => 'decimal:8',
             'longitude' => 'decimal:8',
         ];
@@ -44,6 +42,11 @@ class Destination extends Model
     public function tickets()
     {
         return $this->hasMany(Ticket::class);
+    }
+    //RELATION: cottages
+    public function cottages()
+    {
+        return $this->hasMany(Cottage::class);
     }
 
     //CONSTANTS

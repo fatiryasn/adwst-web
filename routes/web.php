@@ -55,6 +55,9 @@ Route::prefix('admin')->name('admin.')->middleware(['auth', 'can:admin'])->group
     Route::put('/destination/{id}', [DestinationController::class, 'update'])->name('destination.update');
     Route::delete('/destination/{id}', [DestinationController::class, 'destroy'])->name('destination.destroy');
 
+    Route::post('/destination/{id}/cottages', [DestinationController::class, 'addCottage'])->name('destination.addCottage');
+    Route::delete('/destination/{id}/cottages/{cottageId}', [DestinationController::class, 'deleteCottage'])->name('destination.deleteCottage');
+
     Route::get('/affiliate', [AffiliateController::class, 'index'])->name('affiliate.index');
     Route::get('/affiliate/{id}', [AffiliateController::class, 'show'])->name('affiliate.show');
 

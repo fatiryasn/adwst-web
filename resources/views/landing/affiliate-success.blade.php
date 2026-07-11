@@ -31,7 +31,7 @@
                     <h3 class="font-semibold text-gray-800 mb-2">Link Afiliasi Anda</h3>
                     <p class="text-xs text-gray-500 mb-3">Bagikan link ini untuk mengundang pelanggan baru</p>
                     <div class="flex items-center gap-2 bg-white border border-gray-200 rounded-lg px-4 py-3">
-                        <code id="affiliate-link" class="flex-1 text-secondary font-mono text-sm break-all">
+                        <code id="affiliate-link" class="flex-1 text-secondary font-jakarta text-sm break-all">
                             {{ url('/?ref=' . $affiliate->code) }}
                         </code>
                         <button onclick="copyLink()" class="flex-shrink-0 bg-secondary hover:bg-secondary/80 text-white p-2 rounded-lg transition" title="Salin link">

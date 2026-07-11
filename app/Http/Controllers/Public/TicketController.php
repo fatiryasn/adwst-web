@@ -4,6 +4,7 @@ namespace App\Http\Controllers\Public;
 
 use App\Http\Controllers\Controller;
 use App\Models\Affiliate;
+use App\Models\Cottage;
 use App\Models\Destination;
 use App\Models\Ticket;
 use Illuminate\Http\Request;
@@ -14,13 +15,15 @@ class TicketController extends Controller
     //render buy ticket page
     public function create($slug)
     {
-        $destination = Destination::where('slug', $slug)
-            ->where('status', 'active')
-            ->firstOrFail();
+        $destination = Destination::with(['cottages' => function ($q) {
+            $q->with(['tickets' => function ($q) {
+                $q->whereNotIn('ticket_status', ['cancelled', 'expired'])
+                    ->select('id', 'cottage_id', 'visit_date', 'departure_date');
+            }]);
+        }])->where('slug', $slug)->where('status', 'active')->firstOrFail();
 
         $refCode = request()->query('ref') ?: session()->get('affiliate_ref');
         $affiliate = null;
-
         if ($refCode) {
             $affiliate = Affiliate::where('code', strtoupper($refCode))->first();
         }
@@ -39,24 +42,44 @@ class TicketController extends Controller
             'customer_name'    => ['required', 'string', 'max:100'],
             'customer_email'   => ['nullable', 'email', 'max:150'],
             'customer_phone'   => ['required', 'string', 'max:20'],
-            'visit_date'       => ['nullable', 'date'],
-            'departure_date'   => ['nullable', 'date', 'after_or_equal:visit_date'],
+            'visit_date'       => ['required', 'date', 'after_or_equal:today'],
+            'departure_date'   => ['required', 'date', 'after_or_equal:visit_date'],
             'referral_sources' => ['nullable', 'array'],
             'affiliate_code'   => ['nullable', 'string'],
+            'cottage_id'       => ['required', 'exists:cottages,id'],
         ]);
 
+        //verify cottage validity
+        $cottage = Cottage::findOrFail($validated['cottage_id']);
+        if ($cottage->destination_id != $destination->id) {
+            return back()->withErrors(['cottage_id' => 'Cottage tidak valid untuk destinasi ini.'])->withInput();
+        }
+
+        $conflict = Ticket::where('cottage_id', $cottage->id)
+            ->whereNotIn('ticket_status', ['cancelled', 'expired']) 
+            ->where(function ($query) use ($validated) {
+                $query->whereBetween('visit_date', [$validated['visit_date'], $validated['departure_date']])
+                    ->orWhereBetween('departure_date', [$validated['visit_date'], $validated['departure_date']])
+                    ->orWhere(function ($q) use ($validated) {
+                        $q->where('visit_date', '<=', $validated['visit_date'])
+                            ->where('departure_date', '>=', $validated['departure_date']);
+                    });
+            })->exists();
+
+        if ($conflict) {
+            return back()->withErrors(['cottage_id' => 'Cottage sudah dipesan untuk rentang tanggal tersebut.'])->withInput();
+        }
+
+        // Affiliate logic unchanged
         $referralSources = $request->has('referral_sources')
             ? implode(',', $request->referral_sources)
             : null;
-
         $affiliateId = null;
         if ($request->filled('affiliate_code')) {
             $affiliate = Affiliate::where('code', strtoupper($request->affiliate_code))->first();
             if ($affiliate) {
                 $affiliateId = $affiliate->id;
-                $referralSources = $referralSources
-                    ? $referralSources . ',Afiliasi'
-                    : 'Afiliasi';
+                $referralSources = $referralSources ? $referralSources . ',Afiliasi' : 'Afiliasi';
             }
         }
 
@@ -65,14 +88,15 @@ class TicketController extends Controller
         $ticket = Ticket::create([
             'code'            => $code,
             'destination_id'  => $destination->id,
+            'cottage_id'      => $cottage->id,
             'affiliate_id'    => $affiliateId,
             'customer_name'   => $validated['customer_name'],
             'customer_email'  => $validated['customer_email'] ?? null,
             'customer_phone'  => $validated['customer_phone'],
-            'visit_date'      => $validated['visit_date'] ?? null,
-            'departure_date'  => $validated['departure_date'] ?? null,
+            'visit_date'      => $validated['visit_date'],
+            'departure_date'  => $validated['departure_date'],
             'referral_source' => $referralSources,
-            'ticket_price'    => $destination->ticket_price,
+            'ticket_price'    => $cottage->price, // price from cottage
             'payment_status'  => 'pending',
             'ticket_status'   => 'active',
         ]);

@@ -105,7 +105,7 @@
                     <tr>
                         <th class="px-6 py-3 text-left text-sm font-medium text-secondary uppercase tracking-wider">Nama</th>
                         <th class="px-6 py-3 text-left text-sm font-medium text-secondary uppercase tracking-wider">Thumbnail</th>
-                        <th class="px-6 py-3 text-left text-sm font-medium text-secondary uppercase tracking-wider">Harga Tiket</th>
+                        <th class="px-6 py-3 text-left text-sm font-medium text-secondary uppercase tracking-wider">Lokasi</th>
                         <th class="px-6 py-3 text-left text-sm font-medium text-secondary uppercase tracking-wider">Status</th>
                         <th class="px-6 py-3 text-left text-sm font-medium text-secondary uppercase tracking-wider">Dibuat</th>
                     </tr>
@@ -128,7 +128,7 @@
                         </td>
                         <!-- ticket price -->
                         <td class="px-6 py-4 text-sm text-gray-800 border-r border-gray-200">
-                            {{ 'Rp ' . number_format($dest->ticket_price, 0, ',', '.') }}
+                            {{ $dest->address }}
                         </td>
                         <!-- status -->
                         <td class="px-6 py-4 border-r border-gray-200">

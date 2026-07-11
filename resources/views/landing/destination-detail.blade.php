@@ -4,7 +4,7 @@
 
 @section('content')
 
-<div class="max-w-[95rem] mx-auto px-4 sm:px-6 lg:px-10 pt-16 lg:pt-32 pb-4">
+<div class="max-w-[95rem] mx-auto px-4 sm:px-6 lg:px-10 pt-24 lg:pt-32 pb-4">
     <nav class="flex items-center space-x-2 text-sm text-gray-500">
         <a href="{{ url('/') }}" class="hover:text-secondary transition">Beranda</a>
         <x-heroicon-o-chevron-right class="w-4 h-4 text-gray-400" />
@@ -37,9 +37,6 @@
                 <div class="flex items-start gap-2 text-gray-600 mb-6">
                     <x-heroicon-o-map-pin class="w-5 h-5 mt-0.5 flex-shrink-0 text-secondary" />
                     <span>{{ $destination->address }}</span>
-                </div>
-                <div class="text-2xl font-bold text-secondary mb-4 font-jakarta">
-                    {{ 'Rp ' . number_format($destination->ticket_price, 0, ',', '.') }} <span class="text-gray-600 text-xs font-normal">/ orang</span>
                 </div>
                 @endif
                 <div class="mt-2">

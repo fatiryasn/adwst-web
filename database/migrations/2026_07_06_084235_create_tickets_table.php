@@ -17,14 +17,15 @@ return new class extends Migration
             $table->string('code')->unique();
 
             $table->uuid('destination_id');
+            $table->uuid('cottage_id');
             $table->uuid('affiliate_id')->nullable();
 
             $table->string('customer_name', 100);
             $table->string('customer_phone', 20);
             $table->string('customer_email', 150)->nullable();
 
-            $table->date('visit_date')->nullable();
-            $table->date('departure_date')->nullable();
+            $table->date('visit_date');
+            $table->date('departure_date');
             $table->string('referral_source', 255)->nullable();
 
             $table->decimal('ticket_price', 15, 2);
@@ -47,13 +48,21 @@ return new class extends Migration
             $table->timestamps();
             $table->softDeletes();
 
+
+            
             //FKs
             $table->foreign('destination_id')
+            ->references('id')
+            ->on('destinations')
+            ->cascadeOnUpdate()
+            ->restrictOnDelete();
+            
+            $table->foreign('cottage_id')
                 ->references('id')
-                ->on('destinations')
+                ->on('cottages')
                 ->cascadeOnUpdate()
                 ->restrictOnDelete();
-
+            
             $table->foreign('affiliate_id')
                 ->references('id')
                 ->on('affiliates')

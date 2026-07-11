@@ -5,7 +5,7 @@
 @section('content')
 
 <!-- BREADCRUMB -->
-<div class="max-w-[95rem] mx-auto px-4 sm:px-6 lg:px-10 pt-16 lg:pt-32 pb-4">
+<div class="max-w-[95rem] mx-auto px-4 sm:px-6 lg:px-10 pt-24 lg:pt-32 pb-4">
     <nav class="flex items-center space-x-2 text-sm text-gray-500">
         <a href="{{ url('/') }}" class="hover:text-secondary transition">Beranda</a>
         <x-heroicon-o-chevron-right class="w-4 h-4 text-gray-400" />
@@ -82,7 +82,7 @@
                         <label for="phone_number" class="block text-sm font-medium text-gray-700 mb-1">
                             Nomor Telepon <span class="text-red-500">*</span>
                         </label>
-                        <input type="text" name="phone_number" id="phone_number"
+                        <input type="number" name="phone_number" id="phone_number"
                             value="{{ old('phone_number') }}"
                             placeholder="08xxxxxxxxxx"
                             class="w-full border border-gray-200 rounded-lg shadow px-5 py-3 focus:outline-none focus:ring-2 focus:ring-secondary/50"
