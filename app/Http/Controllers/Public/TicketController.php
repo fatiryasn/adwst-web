@@ -72,7 +72,7 @@ class TicketController extends Controller
         //verify cottage validity
         $cottage = Cottage::findOrFail($validated['cottage_id']);
         if ($cottage->destination_id != $destination->id) {
-            return back()->withErrors(['cottage_id' => 'Cottage tidak valid untuk destinasi ini.'])->withInput();
+            return back()->withErrors(['cottage_id' => 'Pondok tidak valid untuk destinasi ini.'])->withInput();
         }
 
         $conflict = Ticket::where('cottage_id', $cottage->id)
@@ -87,7 +87,7 @@ class TicketController extends Controller
             })->exists();
 
         if ($conflict) {
-            return back()->withErrors(['cottage_id' => 'Cottage sudah dipesan untuk rentang tanggal tersebut.'])->withInput();
+            return back()->withErrors(['cottage_id' => 'Pondok sudah dipesan untuk rentang tanggal tersebut.'])->withInput();
         }
 
         // Affiliate logic unchanged
@@ -116,7 +116,7 @@ class TicketController extends Controller
             'visit_date'      => $validated['visit_date'],
             'departure_date'  => $validated['departure_date'],
             'referral_source' => $referralSources,
-            'ticket_price'    => $cottage->price, // price from cottage
+            'ticket_price'    => $cottage->price,
             'payment_status'  => 'pending',
             'ticket_status'   => 'active',
         ]);

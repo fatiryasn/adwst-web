@@ -126,10 +126,6 @@
     @include('partials.sweetalert')
 
     <script>
-        window.addEventListener('load', function() {
-            setTimeout(generatePDF, 600);
-        });
-
         document.getElementById('download-pdf-btn').addEventListener('click', function() {
             generatePDF();
         });
