@@ -138,14 +138,11 @@ class DestinationController extends Controller
         $validated = $request->validate([
             'name'          => ['required', 'string', 'max:200'],
             'description'   => ['nullable', 'string'],
-            'ticket_price'  => ['required', 'numeric', 'min:0'],
             'address'       => ['nullable', 'string'],
             'latitude'      => ['nullable', 'numeric', 'between:-90,90'],
             'longitude'     => ['nullable', 'numeric', 'between:-180,180'],
             'status'        => ['required', 'in:active,inactive'],
             'thumbnail'     => ['nullable', 'image', 'mimes:jpeg,png,jpg,webp', 'max:2048'],
-        ], [
-            'ticket_price.min' => 'Harga tiket tidak boleh negatif.',
         ]);
 
         // Handle name change -> regenerate slug
@@ -174,7 +171,6 @@ class DestinationController extends Controller
             'name'          => $validated['name'],
             'slug'          => $slug,
             'description'   => $validated['description'] ?? $destination->description,
-            'ticket_price'  => $validated['ticket_price'],
             'address'       => $validated['address'] ?? $destination->address,
             'latitude'      => $validated['latitude'] ?? $destination->latitude,
             'longitude'     => $validated['longitude'] ?? $destination->longitude,
