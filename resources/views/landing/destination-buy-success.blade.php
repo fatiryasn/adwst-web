@@ -93,7 +93,7 @@
                 <p class="mt-2 text-sm text-amber-700">
                     Agar tiket valid digunakan, lanjutkan pembayaran dengan menghubungi kami di WhatsApp. Gunakan kode tiket di atas sebagai referensi.
                 </p>
-                <a href="https://wa.me/6281234567890?text=Halo%20AdminWisata%2C%20saya%20ingin%20melakukan%20pembayaran%20untuk%20tiket%20{{ urlencode($ticket->code)}}%20-%20{{urlencode($ticket->destination->name)}}"
+                <a href="https://wa.me/{{ env('WHATSAPP_NUMBER', '6281234567890') }}?text=Halo%20AdminWisata%2C%20saya%20ingin%20melakukan%20pembayaran%20untuk%20tiket%20{{ urlencode($ticket->code)}}%20-%20{{urlencode($ticket->destination->name)}}"
                     target="_blank"
                     class="inline-flex items-center mt-4 bg-green-500 hover:bg-green-600 text-white font-semibold px-6 py-3 rounded-lg transition font-poppins">
                     Bayar via WhatsApp
