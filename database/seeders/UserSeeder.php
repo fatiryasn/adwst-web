@@ -17,22 +17,12 @@ class UserSeeder extends Seeder
     public function run(): void
     {
         User::updateOrCreate(
-            ['email' => 'admingokaro@gmail.com'],
+            ['email' => env('ADMIN_EMAIL')],
             [
                 'full_name' => 'Administrator',
                 'phone_number' => '081234567890',
                 'role' => 'admin',
-                'password' => Hash::make('admin123'),
-            ]
-        );
-
-        User::updateOrCreate(
-            ['email' => 'staffgokaro1@gmail.com'],
-            [
-                'full_name' => 'Staff GoKaro',
-                'phone_number' => '081234567891',
-                'role' => 'staff',
-                'password' => Hash::make('staff123'),
+                'password' => Hash::make(env('ADMIN_PASSWORD')),
             ]
         );
     }

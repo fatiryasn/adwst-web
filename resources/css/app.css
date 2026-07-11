@@ -46,6 +46,10 @@
     --color-surface: var(--surface);
 }
 
+html {
+    font-size: 15px;
+}
+
 @layer base {
   button:not(:disabled) {
     cursor: pointer;
