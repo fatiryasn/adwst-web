@@ -3,20 +3,8 @@
 @section('title', 'Beli Tiket ' . $destination->name)
 
 @section('content')
-<!-- BREADCRUMB & TITLE -->
-<div class="max-w-[95rem] mx-auto px-4 sm:px-6 lg:px-10 pt-24 lg:pt-32 pb-4">
-    <nav class="flex flex-wrap items-center space-x-2 text-sm text-gray-500 text-nowrap">
-        <a href="{{ url('/') }}" class="hover:text-secondary transition">Beranda</a>
-        <x-heroicon-o-chevron-right class="w-4 h-4 text-gray-400" />
-        <a href="{{ route('destinations.index') }}" class="hover:text-secondary transition">Destinasi Wisata</a>
-        <x-heroicon-o-chevron-right class="w-4 h-4 text-gray-400" />
-        <a href="{{ route('destinations.show', $destination->slug) }}" class="hover:text-secondary transition">{{ $destination->name }}</a>
-        <x-heroicon-o-chevron-right class="w-4 h-4 text-gray-400" />
-        <span class="font-medium text-secondary">Beli Tiket</span>
-    </nav>
-</div>
 
-<section class="pb-8 lg:pb-12">
+<section class="pb-8 lg:pb-12 pt-24 lg:pt-36">
     <div class="max-w-[95rem] mx-auto px-4 sm:px-6 lg:px-10">
         <h1 class="text-3xl md:text-4xl lg:text-5xl font-bold text-gray-900 font-jakarta mb-4">Beli Tiket</h1>
     </div>
@@ -87,11 +75,6 @@
                                 <label class="block text-sm font-medium text-gray-700 mb-1">Nomor Telepon <span class="text-red-500">*</span></label>
                                 <input type="number" name="customer_phone" x-model="form.customer_phone" required class="w-full border border-gray-200 rounded-lg shadow px-5 py-3 focus:outline-none focus:ring-2 focus:ring-secondary/50">
                                 @error('customer_phone') <p class="mt-1 text-sm text-red-600">{{ $message }}</p> @enderror
-                            </div>
-                            <div>
-                                <label class="block text-sm font-medium text-gray-700 mb-1">Email</label>
-                                <input type="email" name="customer_email" x-model="form.customer_email" class="w-full border border-gray-200 rounded-lg shadow px-5 py-3 focus:outline-none focus:ring-2 focus:ring-secondary/50">
-                                @error('customer_email') <p class="mt-1 text-sm text-red-600">{{ $message }}</p> @enderror
                             </div>
                             <div>
                                 <label class="block text-sm font-medium text-gray-700 mb-2">Sumber Referensi</label>

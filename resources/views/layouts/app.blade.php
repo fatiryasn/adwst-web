@@ -14,20 +14,18 @@
 <body class="bg-white font-poppins antialiased">
 
     <!-- NAVBAR -->
-    <header x-data="{ atTop: window.location.pathname === '/' && window.pageYOffset === 0, mobileMenuOpen: false }" @scroll.window="atTop = window.location.pathname === '/' && window.pageYOffset === 0"
+    <!-- <header x-data="{ atTop: window.location.pathname === '/' && window.pageYOffset === 0, mobileMenuOpen: false }" @scroll.window="atTop = window.location.pathname === '/' && window.pageYOffset === 0"
         :class="atTop ? 'bg-transparent border-transparent shadow-none' : 'bg-white backdrop-blur-md shadow-sm border-b border-gray-100'"
         class="fixed top-0 left-0 right-0 z-50 transition-all duration-300">
         <div class="max-w-7xl mx-auto px-6 lg:px-8">
             <div class="flex justify-between items-center h-16 lg:h-20">
 
-                <!-- logo -->
                 <div class="flex-shrink-0">
                     <a href="{{ url('/') }}" class="text-xl md:text-2xl font-bold text-secondary">
                         Admin<span class="font-nunito">Wisata</span>
                     </a>
                 </div>
 
-                <!-- navs -->
                 <nav class="hidden lg:flex items-center space-x-8">
                     <a href="{{ url('/') }}"
                         :class="atTop ? 'text-white hover:text-gray-200' : 'text-gray-700 hover:text-secondary'"
@@ -46,7 +44,6 @@
                     </a>
                 </nav>
 
-                <!-- mobile ham button -->
                 <div class="lg:hidden">
                     <button @click="mobileMenuOpen = !mobileMenuOpen" :class="atTop ? 'text-white hover:text-gray-200' : 'text-gray-700 hover:text-secondary'"
                         class="text-gray-700 hover:text-secondary focus:outline-none">
@@ -57,7 +54,6 @@
             </div>
         </div>
 
-        <!-- MOBILE MENU-->
         <div x-show="mobileMenuOpen"
             x-transition:enter="transition ease-out duration-200"
             x-transition:enter-start="opacity-0 -translate-y-2"
@@ -72,6 +68,62 @@
                 </a>
                 <a href="{{ route('destinations.index') }}" class="block text-gray-700 hover:text-secondary font-medium transition {{ request()->routeIs('destinations.*') ? 'text-secondary' : '' }}">
                     Destinasi Wisata
+                </a>
+                <a href="{{ route('affiliates.index') }}" class="block text-gray-700 hover:text-secondary font-medium transition {{ request()->routeIs('affiliates.*') ? 'text-secondary' : '' }}">
+                    Program Afiliasi
+                </a>
+            </div>
+        </div>
+    </header> -->
+
+    <!-- NAVBAR -->
+    <header x-data="{ mobileMenuOpen: false }"
+        class="fixed top-0 left-0 right-0 z-50 bg-white backdrop-blur-md shadow-sm border-b border-gray-100">
+        <div class="max-w-7xl mx-auto px-6 lg:px-8">
+            <div class="flex justify-between items-center h-16 lg:h-20">
+
+                <!-- logo -->
+                <div class="flex-shrink-0">
+                    <a href="{{ url('/') }}" class="text-xl md:text-2xl font-bold text-secondary">
+                        Admin<span class="font-nunito">Wisata</span>
+                    </a>
+                </div>
+
+                <!-- desktop navs -->
+                <nav class="hidden lg:flex items-center space-x-8">
+                    <a href="{{ url('/') }}"
+                        class="text-gray-700 hover:text-secondary font-medium transition border-b-2 {{ request()->is('/') ? 'border-secondary' : 'border-transparent' }}">
+                        Beli Tiket
+                    </a>
+                    <a href="{{ route('affiliates.index') }}"
+                        class="text-gray-700 hover:text-secondary font-medium transition border-b-2 {{ request()->routeIs('affiliates.*') ? 'border-secondary' : 'border-transparent' }}">
+                        Program Afiliasi
+                    </a>
+                </nav>
+
+                <!-- mobile hamburger -->
+                <div class="lg:hidden">
+                    <button @click="mobileMenuOpen = !mobileMenuOpen"
+                        class="text-gray-700 hover:text-secondary focus:outline-none">
+                        <x-heroicon-o-bars-3 x-show="!mobileMenuOpen" class="w-6 h-6" />
+                        <x-heroicon-o-x-mark x-show="mobileMenuOpen" class="w-6 h-6" />
+                    </button>
+                </div>
+            </div>
+        </div>
+
+        <!-- MOBILE MENU -->
+        <div x-show="mobileMenuOpen"
+            x-transition:enter="transition ease-out duration-200"
+            x-transition:enter-start="opacity-0 -translate-y-2"
+            x-transition:enter-end="opacity-100 translate-y-0"
+            x-transition:leave="transition ease-in duration-150"
+            x-transition:leave-start="opacity-100 translate-y-0"
+            x-transition:leave-end="opacity-0 -translate-y-2"
+            class="lg:hidden bg-white border-t border-gray-100 shadow-lg">
+            <div class="px-4 py-4 space-y-3">
+                <a href="{{ url('/') }}" class="block text-gray-700 hover:text-secondary font-medium transition {{ request()->is('/') ? 'text-secondary' : '' }}">
+                    Beli Tiket
                 </a>
                 <a href="{{ route('affiliates.index') }}" class="block text-gray-700 hover:text-secondary font-medium transition {{ request()->routeIs('affiliates.*') ? 'text-secondary' : '' }}">
                     Program Afiliasi
@@ -94,17 +146,13 @@
                 <!-- brand -->
                 <div>
                     <h3 class="text-2xl font-bold text-white mb-4">Admin<span class="font-nunito">Wisata</span></h3>
-                    <p class="text-gray-100 text-sm leading-relaxed">
-                        Platform wisata terbaik untuk menjelajahi keindahan Karo. Temukan destinasi menarik, pesan tiket, dan dapatkan penawaran spesial.
-                    </p>
                 </div>
 
                 <!-- links -->
                 <div>
                     <h4 class="text-sm font-semibold text-white uppercase tracking-wider mb-4">Navigasi</h4>
                     <ul class="space-y-2">
-                        <li><a href="{{ url('/') }}" class="text-gray-100 hover:underline transition text-sm">Beranda</a></li>
-                        <li><a href="{{ route('destinations.index') }}" class="text-gray-100 hover:underline transition text-sm">Destinasi Wisata</a></li>
+                        <li><a href="{{ url('/') }}" class="text-gray-100 hover:underline transition text-sm">Beli Tiket</a></li>
                         <li><a href="{{ route('affiliates.index') }}" class="text-gray-100 hover:underline transition text-sm">Program Afiliasi</a></li>
                     </ul>
                 </div>

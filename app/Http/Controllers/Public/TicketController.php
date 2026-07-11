@@ -13,14 +13,34 @@ use Illuminate\Support\Str;
 class TicketController extends Controller
 {
     //render buy ticket page
-    public function create($slug)
+    // public function create($slug)
+    // {
+    //     $destination = Destination::with(['cottages' => function ($q) {
+    //         $q->with(['tickets' => function ($q) {
+    //             $q->whereNotIn('ticket_status', ['cancelled', 'expired'])
+    //                 ->select('id', 'cottage_id', 'visit_date', 'departure_date');
+    //         }]);
+    //     }])->where('slug', $slug)->where('status', 'active')->firstOrFail();
+
+    //     $refCode = request()->query('ref') ?: session()->get('affiliate_ref');
+    //     $affiliate = null;
+    //     if ($refCode) {
+    //         $affiliate = Affiliate::where('code', strtoupper($refCode))->first();
+    //     }
+
+    //     return view('landing.destination-buy', compact('destination', 'affiliate'));
+    // }
+
+    //render buy ticket page
+    public function create()
     {
+        // Load the first active destination instead of using the slug
         $destination = Destination::with(['cottages' => function ($q) {
             $q->with(['tickets' => function ($q) {
                 $q->whereNotIn('ticket_status', ['cancelled', 'expired'])
                     ->select('id', 'cottage_id', 'visit_date', 'departure_date');
             }]);
-        }])->where('slug', $slug)->where('status', 'active')->firstOrFail();
+        }])->where('status', 'active')->firstOrFail();
 
         $refCode = request()->query('ref') ?: session()->get('affiliate_ref');
         $affiliate = null;
@@ -108,7 +128,7 @@ class TicketController extends Controller
     }
 
     //render success page
-    public function success($slug)
+    public function success()
     {
         $ticketId = session()->pull('ticket_success_id');
         if (!$ticketId) {

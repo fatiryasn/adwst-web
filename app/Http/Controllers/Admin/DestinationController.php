@@ -75,6 +75,12 @@ class DestinationController extends Controller
     //insert
     public function store(Request $request)
     {
+        //ONLY 1 DESTINATION
+        if (Destination::count() >= 1) {
+            return redirect()->back()
+                ->with('swal_error', 'Hanya satu destinasi yang diizinkan. Anda dapat mengedit destinasi yang sudah ada.')
+                ->withInput();
+        }
         //validate
         $validated = $request->validate([
             'name'          => ['required', 'string', 'max:200'],

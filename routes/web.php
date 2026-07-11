@@ -15,20 +15,24 @@ use App\Http\Controllers\Public\AffiliateController as PublicAffiliateController
 use App\Models\Destination;
 
 //public landing page
-Route::get('/', function () {
-    $destinations = Destination::where('status', 'active')
-        ->latest()
-        ->take(4)
-        ->get();
+// Route::get('/', function () {
+//     $destinations = Destination::where('status', 'active')
+//         ->latest()
+//         ->take(4)
+//         ->get();
 
-    return view('landing.home', compact('destinations'));
-});
-Route::get('/destinasi', [PublicDestinationController::class, 'index'])->name('destinations.index');
-Route::get('/destinasi/{slug}', [PublicDestinationController::class, 'show'])->name('destinations.show');
+//     return view('landing.home', compact('destinations'));
+// });
 
-Route::get('/destinasi/{slug}/tiket', [PublicTicketController::class, 'create'])->name('destinations.tickets.create');
+Route::get('/', [PublicTicketController::class, 'create'])->name('destinations.tickets.create');
+// Route::get('/destinasi', [PublicDestinationController::class, 'index'])->name('destinations.index');
+// Route::get('/destinasi/{slug}', [PublicDestinationController::class, 'show'])->name('destinations.show');
+Route::redirect('/destinasi', '/')->name('destinations.index');
+Route::redirect('/destinasi/{slug}', '/')->name('destinations.show');
+
+// Route::get('/destinasi/{slug}/tiket', [PublicTicketController::class, 'create'])->name('destinations.tickets.create');
 Route::post('/destinasi/{slug}/tiket', [PublicTicketController::class, 'store'])->name('destinations.tickets.store');
-Route::get('/destinasi/{slug}/tiket/sukses', [PublicTicketController::class, 'success'])
+Route::get('/destinasi/tiket/sukses', [PublicTicketController::class, 'success'])
     ->name('destinations.tickets.success');
 
 Route::get('/afiliasi', [PublicAffiliateController::class, 'index'])->name('affiliates.index');

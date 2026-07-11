@@ -28,7 +28,7 @@
                 <a href="#" @click.prevent="activeTab = 'cottages'"
                     :class="activeTab === 'cottages' ? 'border-secondary text-secondary' : 'border-transparent text-gray-500 hover:text-gray-700'"
                     class="pb-3 px-1 border-b-2 font-medium text-sm transition">
-                    Kamar/Cottage
+                    Pondok
                 </a>
             </nav>
         </div>
@@ -292,28 +292,28 @@
 
         <!-- Tab: Cottages -->
         <div x-show="activeTab === 'cottages'" x-cloak>
-            <h2 class="text-xl font-semibold text-gray-800 mb-6">Kamar/Cottage</h2>
+            <h2 class="text-xl font-semibold text-gray-800 mb-6">Pondok</h2>
 
             <!-- Add Cottage Form -->
             <form action="{{ route('admin.destination.addCottage', $destination->id) }}" method="POST" class="bg-gray-50 rounded-xl p-4 mb-6">
                 @csrf
-                <h3 class="text-sm font-semibold text-gray-700 mb-3">Tambah Cottage Baru</h3>
+                <h3 class="text-sm font-semibold text-gray-700 mb-3">Tambah Pondok Baru</h3>
                 <div class="grid grid-cols-1 md:grid-cols-3 gap-3">
                     <div>
                         <label class="block text-xs text-gray-600 mb-1">Nama <span class="text-red-500">*</span></label>
                         <input type="text" name="name" placeholder="cth: Deluxe Suite"
-                            class="w-full border border-gray-200 rounded-lg px-3 py-2 text-sm focus:outline-none" required>
+                            class="w-full border border-gray-200 rounded-lg px-3 py-2 text-sm focus:outline-none bg-surface" required>
                     </div>
                     <div>
                         <label class="block text-xs text-gray-600 mb-1">Deskripsi</label>
                         <input type="text" name="description" placeholder="Deskripsi singkat"
-                            class="w-full border border-gray-200 rounded-lg px-3 py-2 text-sm focus:outline-none">
+                            class="w-full border border-gray-200 rounded-lg px-3 py-2 text-sm focus:outline-none bg-surface">
                     </div>
                     <div class="flex items-end gap-2">
                         <div class="flex-1">
                             <label class="block text-xs text-gray-600 mb-1">Harga (Rp) <span class="text-red-500">*</span></label>
                             <input type="number" name="price" placeholder="cth: 250000" min="0" step="0.01"
-                                class="w-full border border-gray-200 rounded-lg px-3 py-2 text-sm focus:outline-none" required>
+                                class="w-full border border-gray-200 rounded-lg px-3 py-2 text-sm focus:outline-none bg-surface" required>
                         </div>
                         <button type="submit" class="bg-secondary hover:bg-secondary/80 text-white text-sm font-medium px-4 py-2 rounded-lg transition">
                             Tambah
