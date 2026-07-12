@@ -16,7 +16,7 @@
         </nav>
     </div>
 
-    <!-- Tabs Navigation -->
+    <!-- tabs navigation -->
     <div x-data="{ activeTab: 'basic' }" class="bg-surface rounded-xl shadow border border-gray-200 p-6">
         <div class="border-b border-gray-200 mb-6">
             <nav class="flex gap-6">
@@ -33,7 +33,7 @@
             </nav>
         </div>
 
-        <!-- Tab: Info Dasar (existing edit/delete form) -->
+        <!-- BASIC INFO TAB -->
         <div x-show="activeTab === 'basic'" x-cloak>
             <div x-data="{ editMode: false, submitting: false, thumbnailPreview: null }" class="bg-surface rounded-xl">
                 <h2 class="text-xl font-semibold text-gray-800 mb-6">Detail Destinasi</h2>
@@ -290,11 +290,11 @@
             </div>
         </div>
 
-        <!-- Tab: Cottages -->
+        <!-- COTTAGE TAB -->
         <div x-show="activeTab === 'cottages'" x-cloak>
             <h2 class="text-xl font-semibold text-gray-800 mb-6">Pondok</h2>
 
-            <!-- Add Cottage Form -->
+            <!-- add cottage form -->
             <form action="{{ route('admin.destination.addCottage', $destination->id) }}" method="POST" class="bg-gray-50 rounded-xl p-4 mb-6">
                 @csrf
                 <h3 class="text-sm font-semibold text-gray-700 mb-3">Tambah Pondok Baru</h3>
@@ -302,18 +302,18 @@
                     <div>
                         <label class="block text-xs text-gray-600 mb-1">Nama <span class="text-red-500">*</span></label>
                         <input type="text" name="name" placeholder="cth: Deluxe Suite"
-                            class="w-full border border-gray-200 rounded-lg px-3 py-2 text-sm focus:outline-none bg-surface" required>
+                            class="w-full border border-gray-200 rounded-lg px-3 py-2 text-sm focus:outline-none bg-surface shadow" required>
                     </div>
                     <div>
                         <label class="block text-xs text-gray-600 mb-1">Deskripsi</label>
                         <input type="text" name="description" placeholder="Deskripsi singkat"
-                            class="w-full border border-gray-200 rounded-lg px-3 py-2 text-sm focus:outline-none bg-surface">
+                            class="w-full border border-gray-200 rounded-lg px-3 py-2 text-sm focus:outline-none bg-surface shadow">
                     </div>
                     <div class="flex items-end gap-2">
                         <div class="flex-1">
                             <label class="block text-xs text-gray-600 mb-1">Harga (Rp) <span class="text-red-500">*</span></label>
                             <input type="number" name="price" placeholder="cth: 250000" min="0" step="0.01"
-                                class="w-full border border-gray-200 rounded-lg px-3 py-2 text-sm focus:outline-none bg-surface" required>
+                                class="w-full border border-gray-200 rounded-lg px-3 py-2 text-sm focus:outline-none bg-surface shadow" required>
                         </div>
                         <button type="submit" class="bg-secondary hover:bg-secondary/80 text-white text-sm font-medium px-4 py-2 rounded-lg transition">
                             Tambah
@@ -322,10 +322,10 @@
                 </div>
             </form>
 
-            <!-- Existing Cottages List -->
+            <!-- cottages list -->
             <div class="space-y-3">
                 @forelse ($destination->cottages as $cottage)
-                <div class="flex items-center justify-between bg-gray-50 rounded-xl p-4 border">
+                <div class="flex items-center justify-between bg-gray-50 rounded-xl p-4 border border-gray-200">
                     <div class="grid grid-cols-3 gap-4 flex-1">
                         <div>
                             <span class="text-xs text-gray-500">Nama</span>
@@ -349,7 +349,7 @@
                     </form>
                 </div>
                 @empty
-                <div class="text-center text-gray-500 py-8">Belum ada cottage.</div>
+                <div class="text-center text-gray-500 py-8">Belum ada pondok.</div>
                 @endforelse
             </div>
         </div>
@@ -368,7 +368,7 @@
 @push('scripts')
 <script>
     document.addEventListener('DOMContentLoaded', function() {
-        // Destination delete confirmation
+        //delete destination confirm
         const deleteBtn = document.getElementById('deleteButton');
         const deleteForm = document.getElementById('deleteForm');
         if (deleteBtn) {
@@ -390,13 +390,13 @@
             });
         }
 
-        // Cottage delete confirmation
+        //delete cottage confirm
         document.querySelectorAll('.delete-cottage-btn').forEach(btn => {
             btn.addEventListener('click', function(e) {
                 e.preventDefault();
                 const form = this.closest('.delete-cottage-form');
                 Swal.fire({
-                    text: 'Hapus cottage ini?',
+                    text: 'Hapus pondok ini?',
                     icon: 'warning',
                     showCancelButton: true,
                     confirmButtonColor: '#dc2626',

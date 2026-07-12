@@ -54,11 +54,14 @@ class TicketController extends Controller
     //insert new ticket
     public function store(Request $request, $slug)
     {
-        $destination = Destination::where('slug', $slug)
+        $destination = Destination::with('cottages')->where('slug', $slug)
             ->where('status', 'active')
             ->firstOrFail();
 
-        $validated = $request->validate([
+        $hasCottages = $destination->cottages->isNotEmpty();
+
+        //validation
+        $rules = [
             'customer_name'    => ['required', 'string', 'max:100'],
             'customer_email'   => ['nullable', 'email', 'max:150'],
             'customer_phone'   => ['required', 'string', 'max:20'],
@@ -66,34 +69,27 @@ class TicketController extends Controller
             'departure_date'   => ['required', 'date', 'after_or_equal:visit_date'],
             'referral_sources' => ['nullable', 'array'],
             'affiliate_code'   => ['nullable', 'string'],
-            'cottage_id'       => ['required', 'exists:cottages,id'],
-        ]);
+        ];
 
-        //verify cottage validity
-        $cottage = Cottage::findOrFail($validated['cottage_id']);
-        if ($cottage->destination_id != $destination->id) {
-            return back()->withErrors(['cottage_id' => 'Pondok tidak valid untuk destinasi ini.'])->withInput();
+        if ($hasCottages) {
+            $rules['cottage_id'] = ['required', 'exists:cottages,id'];
+        } else {
+            $rules['cottage_id'] = ['nullable'];
         }
 
-        $conflict = Ticket::where('cottage_id', $cottage->id)
-            ->whereNotIn('ticket_status', ['cancelled', 'expired']) 
-            ->where(function ($query) use ($validated) {
-                $query->whereBetween('visit_date', [$validated['visit_date'], $validated['departure_date']])
-                    ->orWhereBetween('departure_date', [$validated['visit_date'], $validated['departure_date']])
-                    ->orWhere(function ($q) use ($validated) {
-                        $q->where('visit_date', '<=', $validated['visit_date'])
-                            ->where('departure_date', '>=', $validated['departure_date']);
-                    });
-            })->exists();
+        $validated = $request->validate($rules);
 
-        if ($conflict) {
-            return back()->withErrors(['cottage_id' => 'Pondok sudah dipesan untuk rentang tanggal tersebut.'])->withInput();
+        //cottage logic
+        $cottage = null;
+        if ($hasCottages && $request->filled('cottage_id')) {
+            $cottage = Cottage::findOrFail($validated['cottage_id']);
+            if ($cottage->destination_id != $destination->id) {
+                return back()->withErrors(['cottage_id' => 'Pondok tidak valid untuk destinasi ini.'])->withInput();
+            }
         }
 
-        // Affiliate logic unchanged
-        $referralSources = $request->has('referral_sources')
-            ? implode(',', $request->referral_sources)
-            : null;
+        //affiliate logic
+        $referralSources = $request->has('referral_sources') ? implode(',', $request->referral_sources) : null;
         $affiliateId = null;
         if ($request->filled('affiliate_code')) {
             $affiliate = Affiliate::where('code', strtoupper($request->affiliate_code))->first();
@@ -105,10 +101,11 @@ class TicketController extends Controller
 
         $code = $this->generateUniqueTicketCode();
 
+        //create
         $ticket = Ticket::create([
             'code'            => $code,
             'destination_id'  => $destination->id,
-            'cottage_id'      => $cottage->id,
+            'cottage_id'      => $cottage ? $cottage->id : null,
             'affiliate_id'    => $affiliateId,
             'customer_name'   => $validated['customer_name'],
             'customer_email'  => $validated['customer_email'] ?? null,
@@ -116,7 +113,7 @@ class TicketController extends Controller
             'visit_date'      => $validated['visit_date'],
             'departure_date'  => $validated['departure_date'],
             'referral_source' => $referralSources,
-            'ticket_price'    => $cottage->price,
+            'ticket_price'    => $cottage ? $cottage->price : 0,
             'payment_status'  => 'pending',
             'ticket_status'   => 'active',
         ]);

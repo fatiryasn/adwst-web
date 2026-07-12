@@ -24,10 +24,6 @@
         cottages: [],
         init() {
             this.fileInput = this.$refs.fileInput;
-            // Start with one empty cottage if none
-            if (this.cottages.length === 0) {
-                this.addCottage();
-            }
         },
         triggerFileInput() {
             this.fileInput.click();
@@ -172,7 +168,7 @@
             <!-- COTTAGES REPEATER -->
             <div class="border-t pt-6">
                 <h3 class="text-lg font-semibold text-gray-800 mb-3 font-jakarta">Pondok</h3>
-                <p class="text-xs text-gray-500 mb-4">Tambahkan pondok yang tersedia di destinasi ini beserta harganya.</p>
+                <p class="text-xs text-gray-500 mb-4">Tambahkan pondok yang tersedia di destinasi ini beserta harganya. Kosongkan jika tidak ada.</p>
 
                 <div class="space-y-4">
                     <template x-for="(cottage, index) in cottages" :key="index">
@@ -205,6 +201,7 @@
                                         min="0" step="0.01"
                                         class="w-full border border-gray-200 rounded-lg px-3 py-2 text-sm focus:outline-none bg-surface shadow"
                                         required>
+                                    <p class="text-[10px] text-gray-500 mt-1">Isi 0 jika harga fleksibel.</p>
                                 </div>
                             </div>
                         </div>
@@ -214,7 +211,7 @@
                         :disabled="submitting"
                         class="inline-flex items-center text-secondary hover:text-secondary/80 font-medium text-sm transition">
                         <x-heroicon-o-plus-circle class="w-5 h-5 mr-1" />
-                        Tambah Cottage
+                        Tambah Pondok
                     </button>
                 </div>
                 @error('cottages.*')

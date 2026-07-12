@@ -40,21 +40,24 @@
                 data-code="{{ $ticket->code }}"
                 data-destination="{{ $ticket->destination->name }}"
                 data-price="Rp {{ number_format($ticket->ticket_price, 0, ',', '.') }}"
+                data-price-raw="{{ $ticket->ticket_price }}"
                 data-customer="{{ $ticket->customer_name }}"
                 data-phone="{{ $ticket->customer_phone }}"
                 data-visit-date="{{ $ticket->visit_date ? $ticket->visit_date->format('d M Y') : '' }}"
                 data-departure-date="{{ $ticket->departure_date ? $ticket->departure_date->format('d M Y') : '' }}"
                 data-cottage="{{ $ticket->cottage->name ?? '' }}">
 
-                <div class="flex items-center justify-between bg-gray-50 rounded-xl px-4 py-3 mb-3">
+                <div class="bg-gray-50 rounded-xl px-4 py-3 mb-3 {{ $ticket->ticket_price > 0 ? 'flex items-center justify-between' : 'text-center' }}">
                     <div>
                         <p class="text-xs text-gray-500 uppercase tracking-wide">Kode Tiket</p>
                         <p class="font-jakarta font-bold text-secondary text-lg">{{ $ticket->code }}</p>
                     </div>
+                    @if($ticket->ticket_price > 0)
                     <div class="text-right">
                         <p class="text-xs text-gray-500 uppercase tracking-wide">Total</p>
                         <p class="font-jakarta font-bold text-gray-900 text-lg">Rp {{ number_format($ticket->ticket_price, 0, ',', '.') }}</p>
                     </div>
+                    @endif
                 </div>
 
                 <div class="grid grid-cols-2 gap-3">
@@ -126,10 +129,10 @@
     @include('partials.sweetalert')
 
     <script>
+        //generate pdf
         document.getElementById('download-pdf-btn').addEventListener('click', function() {
             generatePDF();
         });
-
         function generatePDF() {
             const container = document.getElementById('ticket-data-container');
             const img = document.getElementById('qrcode-img');
@@ -143,23 +146,24 @@
             const visitDate = container.dataset.visitDate || '';
             const departureDate = container.dataset.departureDate || '';
             const cottage = container.dataset.cottage || '';
+            const priceRaw = parseFloat(container.dataset.priceRaw) || 0;
 
             const {
                 jsPDF
             } = window.jspdf;
             const doc = new jsPDF('p', 'mm', 'a4');
 
-            // Colors
-            const primaryColor = [249, 115, 22]; // orange
-            const darkColor = [31, 41, 55]; // gray-800
-            const mutedColor = [107, 114, 128]; // gray-500
-            const lightBg = [249, 250, 251]; // gray-50
+            //colors
+            const primaryColor = [249, 115, 22];
+            const darkColor = [31, 41, 55];
+            const mutedColor = [107, 114, 128];
+            const lightBg = [249, 250, 251];
 
-            // ── TOP ACCENT BAR ──
+            //top accent bar
             doc.setFillColor(...primaryColor);
             doc.rect(0, 0, 210, 6, 'F');
 
-            // ── HEADER ──
+            //header
             doc.setFont('Helvetica', 'bold');
             doc.setFontSize(26);
             doc.setTextColor(...primaryColor);
@@ -170,11 +174,11 @@
             doc.setTextColor(...mutedColor);
             doc.text('E-Ticket & Bukti Pemesanan', 15, 28);
 
-            // thin line below header
+            //thin line below header
             doc.setDrawColor(229, 231, 235);
             doc.line(15, 33, 195, 33);
 
-            // ── QR CODE (centered, big) ──
+            //QR code
             try {
                 const canvas = document.createElement('canvas');
                 canvas.width = img.naturalWidth || 180;
@@ -190,21 +194,19 @@
                 console.error('QR code failed', e);
             }
 
-            // ── TICKET DETAILS (modern card) ──
+            //ticket details
             const cardY = 120;
             doc.setFillColor(...lightBg);
-            doc.roundedRect(15, cardY, 180, 72, 4, 4, 'F'); // soft background
+            doc.roundedRect(15, cardY, 180, 72, 4, 4, 'F');
 
             doc.setFont('Helvetica', 'bold');
             doc.setFontSize(16);
             doc.setTextColor(...darkColor);
             doc.text('Detail Perjalanan', 20, cardY + 10);
 
-            // Horizontal line inside card
             doc.setDrawColor(209, 213, 219);
             doc.line(20, cardY + 14, 190, cardY + 14);
 
-            // Left column labels
             const labelX = 20;
             const valueX = 70;
             let y = cardY + 24;
@@ -224,16 +226,15 @@
             addRow('Nama', customer);
             addRow('Telepon', phone);
             addRow('Destinasi', destination + (cottage ? ' (' + cottage + ')' : ''), true);
-            addRow('Harga', price, true);
-
-            // Visit / Departure dates on same line if both exist
+            if (priceRaw > 0) {
+                addRow('Harga', price, true);
+            }
             if (visitDate || departureDate) {
                 doc.setFont('Helvetica', 'normal');
                 doc.setTextColor(...mutedColor);
                 doc.text('Tgl. Kunjungan', labelX, y);
                 doc.setTextColor(...darkColor);
                 doc.text(visitDate || '-', valueX, y);
-                // departure beside
                 doc.setTextColor(...mutedColor);
                 doc.text('Tgl. Kepulangan', valueX + 45, y);
                 doc.setTextColor(...darkColor);
@@ -241,7 +242,7 @@
                 y += 8;
             }
 
-            // ── VALIDITY NOTICE ──
+            //validity notice
             const noticeY = cardY + 80;
             doc.setFont('Helvetica', 'italic');
             doc.setFontSize(9);
@@ -255,7 +256,7 @@
                 20, noticeY + 5
             );
 
-            // ── FOOTER ──
+            //footer
             doc.setDrawColor(229, 231, 235);
             doc.line(15, 255, 195, 255);
 
@@ -275,7 +276,7 @@
                 }
             );
 
-            // ── SAVE ──
+            //save
             doc.save(`Tiket-AdminWisata-${code}.pdf`);
         }
     </script>

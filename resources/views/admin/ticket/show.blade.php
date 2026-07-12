@@ -168,7 +168,13 @@
                     @endif
                 </dd>
                 <dt class="text-gray-600 font-nunito">Harga Tiket</dt>
-                <dd>Rp {{ number_format($ticket->ticket_price, 0, ',', '.') }}</dd>
+                <dd>
+                    @if($ticket->ticket_price > 0)
+                    Rp {{ number_format($ticket->ticket_price, 0, ',', '.') }}
+                    @else
+                    —
+                    @endif
+                </dd>
                 @if ($ticket->destination->address)
                 <dt class="text-gray-600 font-nunito">Alamat</dt>
                 <dd>{{ $ticket->destination->address }}</dd>
@@ -280,6 +286,7 @@
         data-destination="{{ $ticket->destination->name }}"
         data-cottage="{{ $ticket->cottage->name ?? '' }}"
         data-price="Rp {{ number_format($ticket->ticket_price, 0, ',', '.') }}"
+        data-price-raw="{{ $ticket->ticket_price }}"
         data-customer="{{ $ticket->customer_name }}"
         data-phone="{{ $ticket->customer_phone }}"
         data-visit-date="{{ $ticket->visit_date ? $ticket->visit_date->format('d M Y') : '' }}"
@@ -302,7 +309,7 @@
         const currentPayment = container.dataset.paymentStatus;
         const currentTicket = container.dataset.ticketStatus;
 
-        // ----- Update Status with Radio Buttons -----
+        //update status
         const actionBtn = document.getElementById('actionStatusBtn');
         if (actionBtn) {
             actionBtn.addEventListener('click', function() {
@@ -367,7 +374,7 @@
             });
         }
 
-        // ----- Check-in Button -----
+        //check in button
         const checkInBtn = document.getElementById('checkInBtn');
         if (checkInBtn) {
             checkInBtn.addEventListener('click', function() {
@@ -385,7 +392,7 @@
             });
         }
 
-        // ----- Download PDF Button -----
+        //download pdf button
         document.getElementById('download-pdf-btn').addEventListener('click', generatePDF);
 
         function generatePDF() {
@@ -395,12 +402,13 @@
 
             const code = dataContainer.dataset.code;
             const destination = dataContainer.dataset.destination;
-            const price = dataContainer.dataset.price;
             const customer = dataContainer.dataset.customer;
             const phone = dataContainer.dataset.phone;
             const visitDate = dataContainer.dataset.visitDate || '';
             const departureDate = dataContainer.dataset.departureDate || '';
             const cottage = dataContainer.dataset.cottage || '';
+            const price = dataContainer.dataset.price;
+            const priceRaw = parseFloat(dataContainer.dataset.priceRaw) || 0;
 
             const {
                 jsPDF
@@ -412,11 +420,11 @@
             const mutedColor = [107, 114, 128];
             const lightBg = [249, 250, 251];
 
-            // Top accent bar
+            //top accent bar
             doc.setFillColor(...primaryColor);
             doc.rect(0, 0, 210, 6, 'F');
 
-            // Header
+            //header
             doc.setFont('Helvetica', 'bold');
             doc.setFontSize(26);
             doc.setTextColor(...primaryColor);
@@ -430,7 +438,7 @@
             doc.setDrawColor(229, 231, 235);
             doc.line(15, 33, 195, 33);
 
-            // QR Code (centered, big)
+            //QR code
             try {
                 const canvas = document.createElement('canvas');
                 canvas.width = img.naturalWidth || 180;
@@ -446,7 +454,7 @@
                 console.error('QR code failed', e);
             }
 
-            // Ticket details card
+            //ticket detail
             const cardY = 120;
             doc.setFillColor(...lightBg);
             doc.roundedRect(15, cardY, 180, 72, 4, 4, 'F');
@@ -478,8 +486,10 @@
             addRow('Nama', customer);
             addRow('Telepon', phone);
             addRow('Destinasi', destination + (cottage ? ' (' + cottage + ')' : ''), true);
-            addRow('Harga', price, true);
-
+            if (priceRaw > 0) {
+                addRow('Harga', price, true);
+            }
+            
             if (visitDate || departureDate) {
                 doc.setFont('Helvetica', 'normal');
                 doc.setTextColor(...mutedColor);
@@ -493,7 +503,7 @@
                 y += 8;
             }
 
-            // Validity notice
+            //validity notice
             const noticeY = cardY + 80;
             doc.setFont('Helvetica', 'italic');
             doc.setFontSize(9);
@@ -501,7 +511,7 @@
             doc.text('• Tiket hanya valid ketika pembayaran anda dikonfirmasi oleh Admin.', 20, noticeY);
             doc.text('• Tunjukkan tiket ini ketika sudah berada di lokasi.', 20, noticeY + 5);
 
-            // Footer
+            //footer
             doc.setDrawColor(229, 231, 235);
             doc.line(15, 255, 195, 255);
 

@@ -30,7 +30,7 @@
     <div class="max-w-[95rem] mx-auto px-4 sm:px-6 lg:px-8">
 
         @if (!isset($verified) || !$verified)
-        {{-- Check Form --}}
+        <!-- check form -->
         <div class="bg-surface rounded-xl shadow border border-gray-200 p-6">
             <h2 class="text-xl font-semibold text-gray-800 mb-6 font-jakarta">Isi data berikut</h2>
             <form action="{{ route('affiliates.check.submit') }}" method="POST" class="space-y-5">
@@ -56,7 +56,7 @@
                         required>
                 </div>
 
-                {{-- Error messages placed above the button --}}
+                <!-- error message -->
                 @if ($errors->any())
                 <div class="rounded-md bg-red-50 border border-red-200 p-4">
                     <div class="flex">
@@ -83,7 +83,7 @@
             </form>
         </div>
         @else
-        {{-- Result Card --}}
+        <!-- result car -->
         <div class="bg-surface rounded-2xl shadow-lg border border-gray-100 p-6 sm:p-10 text-center">
             <div class="inline-flex items-center justify-center w-20 h-20 rounded-full bg-green-100 text-green-600 mb-6">
                 <x-heroicon-o-check-circle class="w-10 h-10" />
@@ -122,7 +122,6 @@
     </div>
 </section>
 
-{{-- SweetAlert (if any flash) --}}
-@include('partials.sweetalert')
 
+@include('partials.sweetalert')
 @endsection

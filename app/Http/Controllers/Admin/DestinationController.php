@@ -91,7 +91,7 @@ class DestinationController extends Controller
             'status'        => ['required', 'in:active,inactive'],
             'thumbnail'     => ['nullable', 'image', 'mimes:jpeg,png,jpg,webp', 'max:2048'],
 
-            'cottages'                 => ['required', 'array'],
+            'cottages'                 => ['nullable', 'array'],
             'cottages.*.name'          => ['required', 'string', 'max:200'],
             'cottages.*.description'   => ['nullable', 'string'],
             'cottages.*.price'         => ['required', 'numeric', 'min:0'],
@@ -116,13 +116,15 @@ class DestinationController extends Controller
             'thumbnail'     => $thumbnailPath,
         ]);
 
-        //save cottages
-        foreach ($validated['cottages'] as $cottageData) {
-            $destination->cottages()->create([
-                'name'        => $cottageData['name'],
-                'description' => $cottageData['description'] ?? null,
-                'price'       => $cottageData['price'],
-            ]);
+        //save cottages if provided
+        if (!empty($validated['cottages'])) {
+            foreach ($validated['cottages'] as $cottageData) {
+                $destination->cottages()->create([
+                    'name'        => $cottageData['name'],
+                    'description' => $cottageData['description'] ?? null,
+                    'price'       => $cottageData['price'],
+                ]);
+            }
         }
 
         return redirect()
@@ -130,6 +132,7 @@ class DestinationController extends Controller
             ->with('swal_success', 'Destinasi "' . $destination->name . '" berhasil ditambahkan.');
     }
 
+    //render detail page
     public function show($id)
     {
         $destination = Destination::with('cottages')->findOrFail($id);
@@ -206,7 +209,7 @@ class DestinationController extends Controller
             ->with('swal_success', 'Destinasi ' . $destination->name . ' berhasil dihapus.');
     }
 
-    // Add a cottage to the destination
+    //add cottage
     public function addCottage(Request $request, $id)
     {
         $destination = Destination::findOrFail($id);
@@ -220,10 +223,10 @@ class DestinationController extends Controller
         $destination->cottages()->create($validated);
 
         return redirect()->route('admin.destination.show', $destination->id)
-            ->with('swal_success', 'Cottage berhasil ditambahkan.');
+            ->with('swal_success', 'Pondok berhasil ditambahkan.');
     }
 
-    // Delete a cottage
+    //delete cottage
     public function deleteCottage($id, $cottageId)
     {
         $destination = Destination::findOrFail($id);
@@ -231,7 +234,7 @@ class DestinationController extends Controller
         $cottage->delete();
 
         return redirect()->route('admin.destination.show', $destination->id)
-            ->with('swal_success', 'Cottage berhasil dihapus.');
+            ->with('swal_success', 'Pondok berhasil dihapus.');
     }
 
     //unique slug

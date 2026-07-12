@@ -17,7 +17,7 @@ return new class extends Migration
             $table->string('code')->unique();
 
             $table->uuid('destination_id');
-            $table->uuid('cottage_id');
+            $table->uuid('cottage_id')->nullable();
             $table->uuid('affiliate_id')->nullable();
 
             $table->string('customer_name', 100);

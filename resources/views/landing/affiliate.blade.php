@@ -17,7 +17,7 @@
 <section class="pb-8 lg:pb-12 bg-white pt-24 lg:pt-36">
     <div class="max-w-[95rem] mx-auto px-4 sm:px-6 lg:px-10">
         <h1 class="text-3xl md:text-4xl lg:text-5xl font-bold text-gray-900 font-jakarta mb-4">Program Afiliasi</h1>
-        <p class="text-lg text-gray-600 max-w-3xl">
+        <p class="md:text-lg text-gray-600 max-w-3xl">
             Dapatkan poin setiap kali pelanggan yang Anda referensikan berhasil membeli tiket.
             Daftar sekarang dan mulai kumpulkan poin untuk keuntungan lebih!
         </p>
@@ -31,7 +31,7 @@
 
             <!-- left -->
             <div class="hidden lg:block relative bg-cover bg-center"
-                style="background-image: url('https://images.unsplash.com/photo-1552664730-d307ca884978?ixlib=rb-4.0.3&auto=format&fit=crop&w=1350&q=80');">
+                style="background-image: url('https://images.unsplash.com/photo-1488646953014-85cb44e25828?ixlib=rb-4.0.3&auto=format&fit=crop&w=1950&q=80');">
                 <div class="absolute inset-0 bg-gradient-to-t from-black/60 to-black/20"></div>
                 <div class="absolute bottom-0 left-0 p-8 text-white">
                     <h3 class="text-2xl font-bold font-jakarta mb-2">Bergabung & Dapatkan Poin</h3>
@@ -41,13 +41,13 @@
 
             <!-- right -->
             <div x-data="{ submitting: false }" class="p-6 sm:p-10 lg:p-12 flex flex-col justify-center">
-                <h2 class="text-2xl font-semibold text-gray-800 mb-6 font-jakarta">Daftar Menjadi Afiliasi</h2>
+                <h2 class="text-xl md:text-2xl font-semibold text-gray-800 mb-6 font-jakarta">Daftar Menjadi Afiliasi</h2>
 
                 <form action="{{ route('affiliates.store') }}" method="POST" class="space-y-6"
                     x-on:submit="submitting = true" autocomplete="off">
                     @csrf
 
-                    <!-- Nama Lengkap -->
+                    <!-- name -->
                     <div>
                         <label for="full_name" class="block text-sm font-medium text-gray-700 mb-1">
                             Nama Lengkap <span class="text-red-500">*</span>
@@ -62,7 +62,7 @@
                         @enderror
                     </div>
 
-                    <!-- Email -->
+                    <!-- email -->
                     <div>
                         <label for="email" class="block text-sm font-medium text-gray-700 mb-1">
                             Email <span class="text-red-500">*</span>
@@ -77,7 +77,7 @@
                         @enderror
                     </div>
 
-                    <!-- Nomor Telepon -->
+                    <!-- phone number -->
                     <div>
                         <label for="phone_number" class="block text-sm font-medium text-gray-700 mb-1">
                             Nomor Telepon <span class="text-red-500">*</span>
@@ -92,7 +92,7 @@
                         @enderror
                     </div>
 
-                    <!-- Media Promosi -->
+                    <!-- promotion media -->
                     <div>
                         <label class="block text-sm font-medium text-gray-700 mb-2">
                             Media Promosi yang Digunakan

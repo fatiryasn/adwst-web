@@ -125,15 +125,10 @@
             });
         }
 
-        // PDF generation
-        window.addEventListener('load', function() {
-            setTimeout(generatePDF, 600);
-        });
-
+        //generate pdf
         document.getElementById('download-pdf-btn').addEventListener('click', function() {
             generatePDF();
         });
-
         function generatePDF() {
             const container = document.getElementById('affiliate-data-container');
             if (!container) return;

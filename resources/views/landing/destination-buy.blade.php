@@ -50,11 +50,11 @@
                     <!-- indicator -->
                     <div class="flex items-center justify-center gap-2 mb-8">
                         <template x-for="(step, index) in steps" :key="index">
-                            <div class="flex items-center gap-1">
+                            <div class="flex items-center gap-1" x-show="!(index === 2 && !hasCottages)">
                                 <span :class="getStepClass(index)"
                                     class="w-8 h-8 rounded-full flex items-center justify-center text-xs font-bold border-2 transition"
                                     x-text="index + 1"></span>
-                                <span class="text-xs text-gray-600 hidden sm:block" x-text="step.label"></span>
+                                <span class="text-xs text-gray-600 hidden sm:block lg:hidden xl:block" x-text="step.label"></span>
                                 <template x-if="index < steps.length - 1">
                                     <div class="h-0.5 w-8 bg-gray-200"></div>
                                 </template>
@@ -126,30 +126,28 @@
                     </div>
 
                     <!-- step 3 cottage -->
-                    <div x-show="currentStep === 2" x-cloak>
-                        <h3 class="text-lg font-semibold text-gray-800 mb-4 font-jakarta">Pilih Pondok</h3>
-                        <p class="text-sm text-gray-600 mb-4" x-text="dateRangeText"></p>
-                        <div class="space-y-3">
-                            <template x-for="cottage in cottages" :key="cottage.id">
-                                <div @click="selectCottage(cottage)"
-                                    :class="getCottageCardClass(cottage)"
-                                    class="border rounded-xl p-4 cursor-pointer transition">
-                                    <div class="flex justify-between items-center">
-                                        <div>
-                                            <h4 class="font-semibold text-gray-800" x-text="cottage.name"></h4>
-                                            <p class="text-sm text-gray-600" x-text="cottage.description ?? '—'"></p>
-                                            <p class="text-secondary font-bold mt-1" x-text="'Rp ' + new Intl.NumberFormat('id-ID').format(cottage.price)"></p>
-                                        </div>
-                                        <div class="text-sm font-semibold">
-                                            <span x-show="cottage.available" class="text-green-600">Tersedia</span>
-                                            <span x-show="!cottage.available" class="text-red-600">Tidak Tersedia</span>
+                    <template x-if="hasCottages">
+                        <div x-show="currentStep === 2" x-cloak>
+                            <h3 class="text-lg font-semibold text-gray-800 mb-4 font-jakarta">Pilih Pondok</h3>
+                            <p class="text-sm text-gray-600 mb-4" x-text="dateRangeText"></p>
+                            <div class="space-y-3">
+                                <template x-for="cottage in cottages" :key="cottage.id">
+                                    <div @click="selectCottage(cottage)"
+                                        :class="getCottageCardClass(cottage)"
+                                        class="border rounded-xl p-4 cursor-pointer transition">
+                                        <div class="flex justify-between items-center gap-2">
+                                            <div>
+                                                <h4 class="font-semibold text-gray-800" x-text="cottage.name"></h4>
+                                                <p class="text-sm text-gray-600" x-text="cottage.description ?? '—'"></p>
+                                                <p class="text-secondary font-bold mt-1" x-text="formatPrice(cottage.price)"></p>
+                                            </div>
                                         </div>
                                     </div>
-                                </div>
-                            </template>
+                                </template>
+                            </div>
+                            @error('cottage_id') <p class="mt-1 text-sm text-red-600">{{ $message }}</p> @enderror
                         </div>
-                        @error('cottage_id') <p class="mt-1 text-sm text-red-600">{{ $message }}</p> @enderror
-                    </div>
+                    </template>
 
                     <!-- step 4 confirmation -->
                     <div x-show="currentStep === 3" x-cloak>
@@ -193,7 +191,7 @@
                                 <div class="flex-1 min-w-0">
                                     <p class="text-xs text-gray-600 font-semibold uppercase tracking-wide mb-1">Pondok</p>
                                     <p class="font-semibold text-gray-900 text-lg font-jakarta" x-text="selectedCottageName"></p>
-                                    <p class="text-secondary font-bold text-lg" x-text="'Rp ' + new Intl.NumberFormat('id-ID').format(selectedCottagePrice)"></p>
+                                    <p class="text-secondary font-bold text-lg" x-text="formatPrice(selectedCottagePrice)"></p>
                                 </div>
                             </div>
                         </div>
@@ -262,16 +260,12 @@
             submitting: false,
             cottages: [],
             init() {
-                // Transform cottage data: attach the existing tickets array as booked periods
+                // No availability needed, just store cottages as-is
                 this.cottages = cottagesData.map(c => ({
-                    ...c,
-                    bookedPeriods: c.tickets ? c.tickets.map(t => ({
-                        visit: t.visit_date,
-                        depart: t.departure_date
-                    })) : []
+                    ...c
                 }));
+                this.hasCottages = this.cottages.length > 0;
 
-                // Perbaikan pengisian nilai lama (old values) dari Laravel Blade
                 this.form.customer_name = '{{ old("customer_name") ?? "" }}';
                 this.form.customer_phone = '{{ old("customer_phone") ?? "" }}';
                 this.form.customer_email = '{{ old("customer_email") ?? "" }}';
@@ -279,12 +273,7 @@
                 this.form.departure_date = '{{ old("departure_date") ?? "" }}';
 
                 const oldCottage = '{{ old("cottage_id") ?? "" }}';
-                if (oldCottage) this.selectedCottageId = oldCottage;
-
-                // Watch for date changes to update availability
-                this.$watch('form.visit_date', () => this.updateAvailability());
-                this.$watch('form.departure_date', () => this.updateAvailability());
-                this.updateAvailability();
+                if (oldCottage && this.hasCottages) this.selectedCottageId = oldCottage;
             },
             getStepClass(index) {
                 if (index === this.currentStep) return 'border-secondary text-secondary bg-secondary/10';
@@ -292,12 +281,21 @@
                 return 'border-gray-300 text-gray-400';
             },
             nextStep() {
-                if (this.currentStep < 3 && this.validateStep(this.currentStep)) {
-                    this.currentStep++;
+                // If cottage step is hidden and we are on the step before it, jump over it
+                let next = this.currentStep + 1;
+                if (!this.hasCottages && next === 2) {
+                    next = 3; // skip pondok step
+                }
+                if (next <= 3 && this.validateStep(this.currentStep)) {
+                    this.currentStep = next;
                 }
             },
             prevStep() {
-                if (this.currentStep > 0) this.currentStep--;
+                let prev = this.currentStep - 1;
+                if (!this.hasCottages && prev === 2) {
+                    prev = 1; // skip pondok step going back
+                }
+                if (prev >= 0) this.currentStep = prev;
             },
             validateStep(step) {
                 if (step === 0) {
@@ -305,7 +303,7 @@
                         Swal.fire({
                             text: 'Mohon isi nama dan nomor telepon.',
                             icon: 'warning',
-                            confirmButtonColor: '#f97316',
+                            confirmButtonColor: '#f97316'
                         });
                         return false;
                     }
@@ -316,7 +314,7 @@
                         Swal.fire({
                             text: 'Pilih tanggal kedatangan dan kepulangan.',
                             icon: 'warning',
-                            confirmButtonColor: '#f97316',
+                            confirmButtonColor: '#f97316'
                         });
                         return false;
                     }
@@ -324,7 +322,7 @@
                         Swal.fire({
                             text: 'Tanggal kepulangan harus setelah atau sama dengan tanggal kedatangan.',
                             icon: 'warning',
-                            confirmButtonColor: '#f97316',
+                            confirmButtonColor: '#f97316'
                         });
                         return false;
                     }
@@ -332,27 +330,19 @@
                         Swal.fire({
                             text: 'Tanggal kedatangan tidak boleh kurang dari hari ini.',
                             icon: 'warning',
-                            confirmButtonColor: '#f97316',
+                            confirmButtonColor: '#f97316'
                         });
                         return false;
                     }
                     return true;
                 }
-                if (step === 2) {
+                // step 2 (pondok) only if hasCottages, else skip
+                if (step === 2 && this.hasCottages) {
                     if (!this.selectedCottageId) {
                         Swal.fire({
-                            text: 'Pilih satu cottage.',
+                            text: 'Pilih satu pondok.',
                             icon: 'warning',
-                            confirmButtonColor: '#f97316',
-                        });
-                        return false;
-                    }
-                    const selected = this.cottages.find(c => c.id == this.selectedCottageId);
-                    if (!selected || !selected.available) {
-                        Swal.fire({
-                            text: 'Cottage tidak tersedia.',
-                            icon: 'warning',
-                            confirmButtonColor: '#f97316',
+                            confirmButtonColor: '#f97316'
                         });
                         return false;
                     }
@@ -363,35 +353,10 @@
             today() {
                 return new Date().toISOString().split('T')[0];
             },
-            updateAvailability() {
-                if (!this.form.visit_date || !this.form.departure_date) return;
-                const visit = new Date(this.form.visit_date);
-                const depart = new Date(this.form.departure_date);
-                if (depart < visit) return;
-
-                this.cottages.forEach(c => {
-                    // Check if any booked period overlaps
-                    const overlap = c.bookedPeriods.some(p => {
-                        const pVisit = new Date(p.visit);
-                        const pDepart = new Date(p.depart);
-                        return (visit <= pDepart && depart >= pVisit);
-                    });
-                    c.available = !overlap;
-                });
-
-                // If selected cottage becomes unavailable, clear it
-                if (this.selectedCottageId) {
-                    const sel = this.cottages.find(c => c.id == this.selectedCottageId);
-                    if (sel && !sel.available) this.selectedCottageId = null;
-                }
-            },
             selectCottage(cottage) {
-                if (cottage.available) {
-                    this.selectedCottageId = cottage.id;
-                }
+                this.selectedCottageId = cottage.id;
             },
             getCottageCardClass(cottage) {
-                if (!cottage.available) return 'bg-red-50 border-red-300 cursor-not-allowed';
                 if (this.selectedCottageId == cottage.id) return 'bg-blue-50 border-blue-300';
                 return 'bg-white border-gray-200 hover:border-secondary';
             },
@@ -404,8 +369,7 @@
                 return c ? c.price : 0;
             },
             handleSubmit() {
-                if (!this.validateStep(2)) return;
-
+                if (!this.validateStep(this.currentStep)) return;
                 Swal.fire({
                     title: 'Konfirmasi Pemesanan',
                     html: 'Yakin ingin meneruskan?<br>Pastikan data Anda valid.<br>Setelah ini Anda akan menerima tiket dan melakukan pembayaran via WhatsApp.',
@@ -428,12 +392,10 @@
                 const depart = new Date(this.form.departure_date);
                 const diff = depart - visit;
                 const nights = Math.ceil(diff / (1000 * 60 * 60 * 24));
-                return nights + 1; // inclusive of both days
+                return nights + 1;
             },
             get dateRangeText() {
-                if (!this.form.visit_date || !this.form.departure_date) {
-                    return 'Pondok yang tersedia';
-                }
+                if (!this.form.visit_date || !this.form.departure_date) return 'Pondok yang tersedia';
                 const options = {
                     day: 'numeric',
                     month: 'short',
@@ -457,6 +419,11 @@
                     year: 'numeric'
                 };
                 return new Date(dateStr + 'T00:00:00').toLocaleDateString('id-ID', options);
+            },
+            formatPrice(price) {
+                const numericPrice = parseFloat(price);
+                if (isNaN(numericPrice) || numericPrice <= 0) return 'Harga fleksibel';
+                return 'Rp ' + new Intl.NumberFormat('id-ID').format(numericPrice);
             },
         }));
     });
