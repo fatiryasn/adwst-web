@@ -59,11 +59,11 @@
             </div>
             <div>
                 <dt class="text-xs text-gray-600 uppercase tracking-wide font-nunito">Tanggal Dibuat</dt>
-                <dd class="mt-1 text-sm">{{ $ticket->created_at->translatedFormat('d M Y, H:i') }}</dd>
+                <dd class="mt-1 text-sm">{{ $ticket->created_at->setTimezone('Asia/Jakarta')->translatedFormat('d M Y, H:i') }}</dd>
             </div>
             <div>
                 <dt class="text-xs text-gray-600 uppercase tracking-wide font-nunito">Terakhir Update</dt>
-                <dd class="mt-1 text-sm">{{ $ticket->updated_at->translatedFormat('d M Y, H:i') }}</dd>
+                <dd class="mt-1 text-sm">{{ $ticket->updated_at->setTimezone('Asia/Jakarta')->translatedFormat('d M Y, H:i') }}</dd>
             </div>
         </div>
     </div>
@@ -112,7 +112,7 @@
                 <dt class="text-xs text-gray-600 uppercase tracking-wide font-nunito mb-1">Verifikasi Pembayaran</dt>
                 <dd class="text-sm">
                     @if ($ticket->payment_verified_at)
-                    {{ $ticket->payment_verified_at->translatedFormat('d M Y, H:i') }}<br>
+                    {{ $ticket->payment_verified_at->setTimezone('Asia/Jakarta')->translatedFormat('d M Y, H:i') }}<br>
                     <span class="text-gray-400">by {{ $ticket->verifiedBy->full_name ?? '—' }}</span>
                     @else
                     <span class="text-gray-400">—</span>
@@ -124,7 +124,7 @@
                 <dt class="text-xs text-gray-600 uppercase tracking-wide mb-1">Waktu Check-in</dt>
                 <dd class="text-sm">
                     @if ($ticket->checked_in_at)
-                    {{ $ticket->checked_in_at->translatedFormat('d M Y, H:i') }}
+                    {{ $ticket->checked_in_at->setTimezone('Asia/Jakarta')->translatedFormat('d M Y, H:i') }}
                     @else
                     <span class="text-gray-400">—</span>
                     @endif
@@ -298,8 +298,6 @@
 @endsection
 
 @push('scripts')
-{{-- jsPDF CDN --}}
-<script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
 
 <script>
     document.addEventListener('DOMContentLoaded', function() {
@@ -392,141 +390,34 @@
             });
         }
 
-        //download pdf button
-        document.getElementById('download-pdf-btn').addEventListener('click', generatePDF);
-
-        function generatePDF() {
+        //ticket pdf download
+        document.getElementById('download-pdf-btn').addEventListener('click', function() {
             const dataContainer = document.getElementById('ticket-data-container');
-            const img = document.getElementById('qrcode-img');
-            if (!dataContainer || !img) return;
-
-            const code = dataContainer.dataset.code;
-            const destination = dataContainer.dataset.destination;
-            const customer = dataContainer.dataset.customer;
-            const phone = dataContainer.dataset.phone;
-            const visitDate = dataContainer.dataset.visitDate || '';
-            const departureDate = dataContainer.dataset.departureDate || '';
-            const cottage = dataContainer.dataset.cottage || '';
-            const price = dataContainer.dataset.price;
-            const priceRaw = parseFloat(dataContainer.dataset.priceRaw) || 0;
-
-            const {
-                jsPDF
-            } = window.jspdf;
-            const doc = new jsPDF('p', 'mm', 'a4');
-
-            const primaryColor = [249, 115, 22];
-            const darkColor = [31, 41, 55];
-            const mutedColor = [107, 114, 128];
-            const lightBg = [249, 250, 251];
-
-            //top accent bar
-            doc.setFillColor(...primaryColor);
-            doc.rect(0, 0, 210, 6, 'F');
-
-            //header
-            doc.setFont('Helvetica', 'bold');
-            doc.setFontSize(26);
-            doc.setTextColor(...primaryColor);
-            doc.text('AdminWisata', 15, 22);
-
-            doc.setFont('Helvetica', 'normal');
-            doc.setFontSize(11);
-            doc.setTextColor(...mutedColor);
-            doc.text('E-Ticket & Bukti Pemesanan', 15, 28);
-
-            doc.setDrawColor(229, 231, 235);
-            doc.line(15, 33, 195, 33);
-
-            //QR code
-            try {
-                const canvas = document.createElement('canvas');
-                canvas.width = img.naturalWidth || 180;
-                canvas.height = img.naturalHeight || 180;
-                const ctx = canvas.getContext('2d');
-                ctx.drawImage(img, 0, 0);
-                const qrBase64 = canvas.toDataURL('image/png');
-
-                const qrSize = 70;
-                const qrX = (210 - qrSize) / 2;
-                doc.addImage(qrBase64, 'PNG', qrX, 42, qrSize, qrSize);
-            } catch (e) {
-                console.error('QR code failed', e);
+            if (!dataContainer) {
+                Swal.fire('Error', 'Data tiket tidak ditemukan.', 'error');
+                return;
             }
 
-            //ticket detail
-            const cardY = 120;
-            doc.setFillColor(...lightBg);
-            doc.roundedRect(15, cardY, 180, 72, 4, 4, 'F');
-
-            doc.setFont('Helvetica', 'bold');
-            doc.setFontSize(16);
-            doc.setTextColor(...darkColor);
-            doc.text('Detail Perjalanan', 20, cardY + 10);
-
-            doc.setDrawColor(209, 213, 219);
-            doc.line(20, cardY + 14, 190, cardY + 14);
-
-            const labelX = 20;
-            const valueX = 70;
-            let y = cardY + 24;
-
-            doc.setFontSize(11);
-            const addRow = (label, value, isBold = false) => {
-                doc.setFont('Helvetica', 'normal');
-                doc.setTextColor(...mutedColor);
-                doc.text(label, labelX, y);
-                doc.setFont('Helvetica', isBold ? 'bold' : 'normal');
-                doc.setTextColor(...darkColor);
-                doc.text(value, valueX, y);
-                y += 8;
+            const ticketData = {
+                code: dataContainer.dataset.code,
+                destination: dataContainer.dataset.destination,
+                price: dataContainer.dataset.price,
+                priceRaw: parseFloat(dataContainer.dataset.priceRaw) || 0,
+                customer: dataContainer.dataset.customer,
+                phone: dataContainer.dataset.phone,
+                visitDate: dataContainer.dataset.visitDate || '',
+                departureDate: dataContainer.dataset.departureDate || '',
+                cottage: dataContainer.dataset.cottage || ''
             };
 
-            addRow('Kode Tiket', code, true);
-            addRow('Nama', customer);
-            addRow('Telepon', phone);
-            addRow('Destinasi', destination + (cottage ? ' (' + cottage + ')' : ''), true);
-            if (priceRaw > 0) {
-                addRow('Harga', price, true);
-            }
-            
-            if (visitDate || departureDate) {
-                doc.setFont('Helvetica', 'normal');
-                doc.setTextColor(...mutedColor);
-                doc.text('Tgl. Kunjungan', labelX, y);
-                doc.setTextColor(...darkColor);
-                doc.text(visitDate || '-', valueX, y);
-                doc.setTextColor(...mutedColor);
-                doc.text('Tgl. Kepulangan', valueX + 45, y);
-                doc.setTextColor(...darkColor);
-                doc.text(departureDate || '-', valueX + 90, y);
-                y += 8;
-            }
-
-            //validity notice
-            const noticeY = cardY + 80;
-            doc.setFont('Helvetica', 'italic');
-            doc.setFontSize(9);
-            doc.setTextColor(...mutedColor);
-            doc.text('• Tiket hanya valid ketika pembayaran anda dikonfirmasi oleh Admin.', 20, noticeY);
-            doc.text('• Tunjukkan tiket ini ketika sudah berada di lokasi.', 20, noticeY + 5);
-
-            //footer
-            doc.setDrawColor(229, 231, 235);
-            doc.line(15, 255, 195, 255);
-
-            doc.setFont('Helvetica', 'oblique');
-            doc.setFontSize(9);
-            doc.text('Terima kasih telah mempercayakan perjalanan Anda bersama AdminWisata.', 105, 262, {
-                align: 'center'
+            window.downloadTicketPDF(ticketData).catch(err => {
+                console.error('PDF generation failed:', err);
+                Swal.fire({
+                    icon: 'error',
+                    text: 'Tidak dapat membuat PDF. Silakan coba lagi.'
+                });
             });
-            doc.setFont('Helvetica', 'normal');
-            doc.text(`Waktu Cetak otomatis: ${new Date().toLocaleString('id-ID')}`, 105, 267, {
-                align: 'center'
-            });
-
-            doc.save(`Tiket-AdminWisata-${code}.pdf`);
-        }
+        });
     });
 </script>
 @endpush

@@ -53,7 +53,7 @@
                             <div class="flex items-center gap-1" x-show="!(index === 2 && !hasCottages)">
                                 <span :class="getStepClass(index)"
                                     class="w-8 h-8 rounded-full flex items-center justify-center text-xs font-bold border-2 transition"
-                                    x-text="index + 1"></span>
+                                    x-text="getVisibleNumber(index)"></span>
                                 <span class="text-xs text-gray-600 hidden sm:block lg:hidden xl:block" x-text="step.label"></span>
                                 <template x-if="index < steps.length - 1">
                                     <div class="h-0.5 w-8 bg-gray-200"></div>
@@ -184,7 +184,7 @@
                             </div>
 
                             <!-- pondok -->
-                            <div class="flex items-start gap-3">
+                            <div x-show="hasCottages" class="flex items-start gap-3">
                                 <div class="flex-shrink-0 w-10 h-10 rounded-full bg-green-100 flex items-center justify-center">
                                     <x-heroicon-o-home-modern class="w-5 h-5 text-green-600" />
                                 </div>
@@ -410,6 +410,14 @@
                 } else {
                     return `Pondok yang tersedia di tanggal ${visitStr} sampai ${departStr}`;
                 }
+            },
+            getVisibleNumber(index) {
+                let count = 0;
+                for (let i = 0; i <= index; i++) {
+                    // skip cottage step when no cottages
+                    if (!(i === 2 && !this.hasCottages)) count++;
+                }
+                return count;
             },
             formatDate(dateStr) {
                 if (!dateStr) return '—';

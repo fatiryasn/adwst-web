@@ -35,11 +35,11 @@
             </div>
             <div>
                 <dt class="text-xs text-gray-600 uppercase tracking-wide font-nunito">Tanggal Dibuat</dt>
-                <dd class="mt-1 text-sm">{{ $affiliate->created_at->translatedFormat('d M Y, H:i') }}</dd>
+                <dd class="mt-1 text-sm">{{ $affiliate->created_at->setTimezone('Asia/Jakarta')->translatedFormat('d M Y, H:i') }}</dd>
             </div>
             <div>
                 <dt class="text-xs text-gray-600 uppercase tracking-wide font-nunito">Terakhir Update</dt>
-                <dd class="mt-1 text-sm">{{ $affiliate->updated_at->translatedFormat('d M Y, H:i') }}</dd>
+                <dd class="mt-1 text-sm">{{ $affiliate->updated_at->setTimezone('Asia/Jakarta')->translatedFormat('d M Y, H:i') }}</dd>
             </div>
         </div>
     </div>
@@ -103,7 +103,7 @@
                             {{ $point->description ?? '—' }}
                         </td>
                         <td class="px-4 py-3 whitespace-nowrap text-sm text-gray-500">
-                            {{ $point->created_at->translatedFormat('d M Y, H:i') }}
+                            {{ $point->created_at->setTimezone('Asia/Jakarta')->translatedFormat('d M Y, H:i') }}
                         </td>
                     </tr>
                     @empty

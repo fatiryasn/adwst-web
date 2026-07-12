@@ -119,7 +119,11 @@
                         <!-- destination -->
                         <td class="px-6 py-4 border-r border-gray-200 max-w-[200px] truncate" title="{{ $ticket->destination->name ?? '' }}">
                             <div class="font-medium text-gray-900 truncate">{{ $ticket->destination->name ?? '—' }}</div>
-                            <div class="text-xs text-gray-600">Rp {{ number_format($ticket->ticket_price, 0, ',', '.') }}</div>
+                            <div class="text-xs text-gray-600"> @if($ticket->ticket_price > 0)
+                                Rp {{ number_format($ticket->ticket_price, 0, ',', '.') }}
+                                @else
+                                —
+                                @endif</div>
                         </td>
                         <!-- visit and departure -->
                         <td class="px-6 py-4 border-r border-gray-200">
@@ -174,7 +178,7 @@
                         </td>
                         <!-- created at -->
                         <td class="px-6 py-4 text-sm text-gray-800">
-                            {{ $ticket->created_at->translatedFormat('d M Y, H:i') }}
+                            {{ $ticket->created_at->setTimezone('Asia/Jakarta')->translatedFormat('d M Y, H:i') }}
                         </td>
                     </tr>
                     @empty

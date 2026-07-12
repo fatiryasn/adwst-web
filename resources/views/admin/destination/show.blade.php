@@ -234,13 +234,13 @@
                         <div>
                             <label class="block text-sm font-medium text-gray-700 mb-1">Dibuat</label>
                             <div class="w-full border border-transparent py-1 text-gray-800 text-sm">
-                                {{ $destination->created_at->translatedFormat('d F Y, H:i') }}
+                                {{ $destination->created_at->setTimezone('Asia/Jakarta')->translatedFormat('d M Y, H:i') }}
                             </div>
                         </div>
                         <div>
                             <label class="block text-sm font-medium text-gray-700 mb-1">Terakhir Diperbarui</label>
                             <div class="w-full border border-transparent py-1 text-gray-800 text-sm">
-                                {{ $destination->updated_at->translatedFormat('d F Y, H:i') }}
+                                {{ $destination->updated_at->setTimezone('Asia/Jakarta')->translatedFormat('d M Y, H:i') }}
                             </div>
                         </div>
                     </div>

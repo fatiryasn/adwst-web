@@ -7,8 +7,6 @@
     @vite(['resources/css/app.css', 'resources/js/app.js'])
     <title>Pemesanan Tiket Berhasil - {{ config('app.name') }}</title>
 
-    <!-- jsPDF -->
-    <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
     @stack('styles')
 </head>
 
@@ -27,11 +25,7 @@
             <div class="mb-8">
                 <p class="text-sm text-gray-500 mb-3">QR Code Tiket (hanya valid setelah pembayaran berhasil)</p>
                 <div id="qrcode-container" class="inline-block bg-white p-2 rounded-xl shadow-sm border">
-                    <img src="https://api.qrserver.com/v1/create-qr-code/?size=180x180&data={{ urlencode($ticket->code) }}"
-                        alt="QR Code Tiket"
-                        class="w-44 h-44"
-                        id="qrcode-img"
-                        crossorigin="anonymous">
+                    <canvas id="qrcode-canvas" width="180" height="180"></canvas>
                 </div>
             </div>
 
@@ -117,167 +111,87 @@
                 </ul>
             </div>
 
-            <!-- download button -->
-            <button id="download-pdf-btn"
-                class="inline-flex items-center bg-secondary hover:bg-secondary/80 text-white font-semibold px-6 py-3 rounded-lg transition font-poppins">
-                <x-heroicon-o-arrow-down-tray class="w-5 h-5 mr-2" />
-                Unduh Tiket (PDF)
-            </button>
+            <!-- action buttons -->
+            <div class="flex flex-col sm:flex-row justify-center gap-4 mt-6">
+                <button id="download-pdf-btn"
+                    class="inline-flex items-center justify-center bg-secondary hover:bg-secondary/80 text-white font-semibold px-6 py-3 rounded-lg transition font-poppins">
+                    <x-heroicon-o-arrow-down-tray class="w-5 h-5 mr-2" />
+                    Unduh Tiket (PDF)
+                </button>
+                <button id="back-home-btn"
+                    onclick="confirmBackHome()"
+                    class="inline-flex items-center justify-center bg-gray-200 hover:bg-gray-300 text-gray-700 font-semibold px-6 py-3 rounded-lg transition font-poppins">
+                    <x-heroicon-o-arrow-left class="w-5 h-5 mr-2" />
+                    Kembali
+                </button>
+            </div>
         </div>
     </div>
 
     @include('partials.sweetalert')
 
     <script>
-        //generate pdf
-        document.getElementById('download-pdf-btn').addEventListener('click', function() {
-            generatePDF();
-        });
-        function generatePDF() {
+        //generate qr code
+        document.addEventListener('DOMContentLoaded', async function() {
             const container = document.getElementById('ticket-data-container');
-            const img = document.getElementById('qrcode-img');
-            if (!container || !img) return;
-
-            const code = container.dataset.code;
-            const destination = container.dataset.destination;
-            const price = container.dataset.price;
-            const customer = container.dataset.customer;
-            const phone = container.dataset.phone;
-            const visitDate = container.dataset.visitDate || '';
-            const departureDate = container.dataset.departureDate || '';
-            const cottage = container.dataset.cottage || '';
-            const priceRaw = parseFloat(container.dataset.priceRaw) || 0;
-
-            const {
-                jsPDF
-            } = window.jspdf;
-            const doc = new jsPDF('p', 'mm', 'a4');
-
-            //colors
-            const primaryColor = [249, 115, 22];
-            const darkColor = [31, 41, 55];
-            const mutedColor = [107, 114, 128];
-            const lightBg = [249, 250, 251];
-
-            //top accent bar
-            doc.setFillColor(...primaryColor);
-            doc.rect(0, 0, 210, 6, 'F');
-
-            //header
-            doc.setFont('Helvetica', 'bold');
-            doc.setFontSize(26);
-            doc.setTextColor(...primaryColor);
-            doc.text('AdminWisata', 15, 22);
-
-            doc.setFont('Helvetica', 'normal');
-            doc.setFontSize(11);
-            doc.setTextColor(...mutedColor);
-            doc.text('E-Ticket & Bukti Pemesanan', 15, 28);
-
-            //thin line below header
-            doc.setDrawColor(229, 231, 235);
-            doc.line(15, 33, 195, 33);
-
-            //QR code
-            try {
-                const canvas = document.createElement('canvas');
-                canvas.width = img.naturalWidth || 180;
-                canvas.height = img.naturalHeight || 180;
-                const ctx = canvas.getContext('2d');
-                ctx.drawImage(img, 0, 0);
-                const qrBase64 = canvas.toDataURL('image/png');
-
-                const qrSize = 70;
-                const qrX = (210 - qrSize) / 2;
-                doc.addImage(qrBase64, 'PNG', qrX, 42, qrSize, qrSize);
-            } catch (e) {
-                console.error('QR code failed', e);
+            const canvas = document.getElementById('qrcode-canvas');
+            if (container && canvas) {
+                const code = container.dataset.code;
+                try {
+                    const qrDataUrl = await window.generateQRDataURL(code);
+                    const ctx = canvas.getContext('2d');
+                    const img = new Image();
+                    img.onload = () => {
+                        ctx.drawImage(img, 0, 0, canvas.width, canvas.height);
+                    };
+                    img.src = qrDataUrl;
+                } catch (e) {
+                    console.error('QR generation failed:', e);
+                }
             }
+        });
 
-            //ticket details
-            const cardY = 120;
-            doc.setFillColor(...lightBg);
-            doc.roundedRect(15, cardY, 180, 72, 4, 4, 'F');
+        //pdf ticket download
+        document.getElementById('download-pdf-btn').addEventListener('click', function() {
+            const container = document.getElementById('ticket-data-container');
+            if (!container) return;
 
-            doc.setFont('Helvetica', 'bold');
-            doc.setFontSize(16);
-            doc.setTextColor(...darkColor);
-            doc.text('Detail Perjalanan', 20, cardY + 10);
-
-            doc.setDrawColor(209, 213, 219);
-            doc.line(20, cardY + 14, 190, cardY + 14);
-
-            const labelX = 20;
-            const valueX = 70;
-            let y = cardY + 24;
-
-            doc.setFontSize(11);
-            const addRow = (label, value, isBold = false) => {
-                doc.setFont('Helvetica', 'normal');
-                doc.setTextColor(...mutedColor);
-                doc.text(label, labelX, y);
-                doc.setFont('Helvetica', isBold ? 'bold' : 'normal');
-                doc.setTextColor(...darkColor);
-                doc.text(value, valueX, y);
-                y += 8;
+            const ticketData = {
+                code: container.dataset.code,
+                destination: container.dataset.destination,
+                price: container.dataset.price,
+                priceRaw: parseFloat(container.dataset.priceRaw) || 0,
+                customer: container.dataset.customer,
+                phone: container.dataset.phone,
+                visitDate: container.dataset.visitDate || '',
+                departureDate: container.dataset.departureDate || '',
+                cottage: container.dataset.cottage || ''
             };
 
-            addRow('Kode Tiket', code, true);
-            addRow('Nama', customer);
-            addRow('Telepon', phone);
-            addRow('Destinasi', destination + (cottage ? ' (' + cottage + ')' : ''), true);
-            if (priceRaw > 0) {
-                addRow('Harga', price, true);
-            }
-            if (visitDate || departureDate) {
-                doc.setFont('Helvetica', 'normal');
-                doc.setTextColor(...mutedColor);
-                doc.text('Tgl. Kunjungan', labelX, y);
-                doc.setTextColor(...darkColor);
-                doc.text(visitDate || '-', valueX, y);
-                doc.setTextColor(...mutedColor);
-                doc.text('Tgl. Kepulangan', valueX + 45, y);
-                doc.setTextColor(...darkColor);
-                doc.text(departureDate || '-', valueX + 90, y);
-                y += 8;
-            }
+            window.downloadTicketPDF(ticketData).catch(err => {
+                console.error('PDF generation failed:', err);
+                Swal.fire({
+                    icon: 'error',
+                    text: 'Tidak dapat membuat PDF. Silakan coba lagi.'
+                });
+            });
+        });
 
-            //validity notice
-            const noticeY = cardY + 80;
-            doc.setFont('Helvetica', 'italic');
-            doc.setFontSize(9);
-            doc.setTextColor(...mutedColor);
-            doc.text(
-                '• Tiket hanya valid ketika pembayaran anda dikonfirmasi oleh Admin.',
-                20, noticeY
-            );
-            doc.text(
-                '• Tunjukkan tiket ini ketika sudah berada di lokasi.',
-                20, noticeY + 5
-            );
-
-            //footer
-            doc.setDrawColor(229, 231, 235);
-            doc.line(15, 255, 195, 255);
-
-            doc.setFont('Helvetica', 'oblique');
-            doc.setFontSize(9);
-            doc.text(
-                'Terima kasih telah mempercayakan perjalanan Anda bersama AdminWisata.',
-                105, 262, {
-                    align: 'center'
+        //confirm back home
+        function confirmBackHome() {
+            Swal.fire({
+                text: 'Pastikan anda sudah menyimpan informasi tiket anda sebelum meninggalkan halaman ini!',
+                icon: 'warning',
+                showCancelButton: true,
+                confirmButtonColor: '#f97316',
+                cancelButtonColor: '#6b7280',
+                confirmButtonText: 'Sudah, kembali',
+                cancelButtonText: 'Cancel'
+            }).then((result) => {
+                if (result.isConfirmed) {
+                    window.location.href = '/';
                 }
-            );
-            doc.setFont('Helvetica', 'normal');
-            doc.text(
-                `Waktu Cetak otomatis: ${new Date().toLocaleString('id-ID')}`,
-                105, 267, {
-                    align: 'center'
-                }
-            );
-
-            //save
-            doc.save(`Tiket-AdminWisata-${code}.pdf`);
+            });
         }
     </script>
 

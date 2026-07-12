@@ -118,7 +118,7 @@
                         </td>
                         <!-- Dibuat -->
                         <td class="px-6 py-4 text-sm text-gray-800">
-                            {{ $affiliate->created_at->translatedFormat('d M Y, H:i') }}
+                            {{ $affiliate->created_at->setTimezone('Asia/Jakarta')->translatedFormat('d M Y, H:i') }}
                         </td>
                     </tr>
                     @empty
