@@ -65,6 +65,7 @@ class TicketController extends Controller
             'customer_name'    => ['required', 'string', 'max:100'],
             'customer_email'   => ['nullable', 'email', 'max:150'],
             'customer_phone'   => ['required', 'string', 'max:20'],
+            'customer_destination_detail' => ['nullable', 'string', 'max:4000'],
             'visit_date'       => ['required', 'date', 'after_or_equal:today'],
             'departure_date'   => ['required', 'date', 'after_or_equal:visit_date'],
             'referral_sources' => ['nullable', 'array'],
@@ -75,8 +76,8 @@ class TicketController extends Controller
             $rules['cottage_id'] = ['required', 'exists:cottages,id'];
         } else {
             $rules['cottage_id'] = ['nullable'];
+            $rules['customer_destination_detail'] = ['required', 'string', 'max:4000'];
         }
-
         $validated = $request->validate($rules);
 
         //cottage logic
@@ -110,6 +111,7 @@ class TicketController extends Controller
             'customer_name'   => $validated['customer_name'],
             'customer_email'  => $validated['customer_email'] ?? null,
             'customer_phone'  => $validated['customer_phone'],
+            'customer_destination_detail' => $validated['customer_destination_detail'] ?? null,
             'visit_date'      => $validated['visit_date'],
             'departure_date'  => $validated['departure_date'],
             'referral_source' => $referralSources,

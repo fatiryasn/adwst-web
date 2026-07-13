@@ -48,15 +48,18 @@
                     <input type="hidden" name="cottage_id" x-model="selectedCottageId">
 
                     <!-- indicator -->
-                    <div class="flex items-center justify-center gap-2 mb-8">
+                    <div class="flex items-center justify-center gap-0 mb-8">
                         <template x-for="(step, index) in steps" :key="index">
-                            <div class="flex items-center gap-1" x-show="!(index === 2 && !hasCottages)">
-                                <span :class="getStepClass(index)"
-                                    class="w-8 h-8 rounded-full flex items-center justify-center text-xs font-bold border-2 transition"
-                                    x-text="getVisibleNumber(index)"></span>
-                                <span class="text-xs text-gray-600 hidden sm:block lg:hidden xl:block" x-text="step.label"></span>
+                            <div class="flex items-center">
+                                <div class="flex flex-col items-center">
+                                    <span :class="getStepClass(index)"
+                                        class="w-8 h-8 rounded-full flex items-center justify-center text-xs font-bold border-2 transition"
+                                        x-text="index + 1"></span>
+                                    <span class="text-xs text-gray-600 mt-1 whitespace-nowrap hidden md:block lg:hidden xl:block" x-text="step.label"></span>
+                                </div>
+                                <!-- connecting line between steps -->
                                 <template x-if="index < steps.length - 1">
-                                    <div class="h-0.5 w-8 bg-gray-200"></div>
+                                    <div class="h-0.5 w-8 sm:w-10 bg-gray-200 mx-1 sm:mx-2"></div>
                                 </template>
                             </div>
                         </template>
@@ -125,29 +128,53 @@
                         </div>
                     </div>
 
-                    <!-- step 3 cottage -->
-                    <template x-if="hasCottages">
-                        <div x-show="currentStep === 2" x-cloak>
-                            <h3 class="text-lg font-semibold text-gray-800 mb-4 font-jakarta">Pilih Pondok</h3>
-                            <p class="text-sm text-gray-600 mb-4" x-text="dateRangeText"></p>
-                            <div class="space-y-3">
-                                <template x-for="cottage in cottages" :key="cottage.id">
-                                    <div @click="selectCottage(cottage)"
-                                        :class="getCottageCardClass(cottage)"
-                                        class="border rounded-xl p-4 cursor-pointer transition">
-                                        <div class="flex justify-between items-center gap-2">
-                                            <div>
-                                                <h4 class="font-semibold text-gray-800" x-text="cottage.name"></h4>
-                                                <p class="text-sm text-gray-600" x-text="cottage.description ?? '—'"></p>
-                                                <p class="text-secondary font-bold mt-1" x-text="formatPrice(cottage.price)"></p>
+                    <!-- step 3 cottage / destination detail -->
+                    <div x-show="currentStep === 2" x-cloak>
+                        <h3 class="text-lg font-semibold text-gray-800 mb-4 font-jakarta"
+                            x-text="hasCottages ? 'Pilih Pondok' : 'Detail Perjalanan'"></h3>
+
+                        <!-- cottage -->
+                        <template x-if="hasCottages">
+                            <div>
+                                <p class="text-sm text-gray-600 mb-4" x-text="dateRangeText"></p>
+                                <div class="space-y-3">
+                                    <template x-for="cottage in cottages" :key="cottage.id">
+                                        <div @click="selectCottage(cottage)"
+                                            :class="getCottageCardClass(cottage)"
+                                            class="border rounded-xl p-4 cursor-pointer transition">
+                                            <div class="flex justify-between items-center gap-2">
+                                                <div>
+                                                    <h4 class="font-semibold text-gray-800" x-text="cottage.name"></h4>
+                                                    <p class="text-sm text-gray-600" x-text="cottage.description ?? '—'"></p>
+                                                    <p class="text-secondary font-bold mt-1" x-text="formatPrice(cottage.price)"></p>
+                                                </div>
                                             </div>
                                         </div>
-                                    </div>
-                                </template>
+                                    </template>
+                                </div>
+                                @error('cottage_id') <p class="mt-1 text-sm text-red-600">{{ $message }}</p> @enderror
                             </div>
-                            @error('cottage_id') <p class="mt-1 text-sm text-red-600">{{ $message }}</p> @enderror
-                        </div>
-                    </template>
+                        </template>
+
+                        <!-- destination detail -->
+                        <template x-if="!hasCottages">
+                            <div>
+                                <label class="block text-sm font-medium text-gray-700 mb-1">
+                                    Detail Perjalanan <span class="text-red-500">*</span>
+                                </label>
+                                <textarea name="customer_destination_detail"
+                                    x-model="form.customer_destination_detail"
+                                    maxlength="4000"
+                                    rows="6"
+                                    class="w-full border border-gray-200 rounded-lg shadow px-5 py-3 focus:outline-none focus:ring-2 focus:ring-secondary/50"
+                                    placeholder="Tulis detail perjalanan Anda di sini..."></textarea>
+                                <p class="text-xs text-gray-600 mt-1 text-right">
+                                    <span x-text="form.customer_destination_detail.length"></span>/4000 karakter
+                                </p>
+                                @error('customer_destination_detail') <p class="mt-1 text-sm text-red-600">{{ $message }}</p> @enderror
+                            </div>
+                        </template>
+                    </div>
 
                     <!-- step 4 confirmation -->
                     <div x-show="currentStep === 3" x-cloak>
@@ -183,7 +210,7 @@
                                 </div>
                             </div>
 
-                            <!-- pondok -->
+                            <!-- cottage -->
                             <div x-show="hasCottages" class="flex items-start gap-3">
                                 <div class="flex-shrink-0 w-10 h-10 rounded-full bg-green-100 flex items-center justify-center">
                                     <x-heroicon-o-home-modern class="w-5 h-5 text-green-600" />
@@ -192,6 +219,26 @@
                                     <p class="text-xs text-gray-600 font-semibold uppercase tracking-wide mb-1">Pondok</p>
                                     <p class="font-semibold text-gray-900 text-lg font-jakarta" x-text="selectedCottageName"></p>
                                     <p class="text-secondary font-bold text-lg" x-text="formatPrice(selectedCottagePrice)"></p>
+                                </div>
+                            </div>
+
+                            <!-- destination detail (with expand/collapse) -->
+                            <div x-show="!hasCottages && form.customer_destination_detail" class="flex items-start gap-3">
+                                <div class="flex-shrink-0 w-10 h-10 rounded-full bg-yellow-100 flex items-center justify-center">
+                                    <x-heroicon-o-document-text class="w-5 h-5 text-yellow-600" />
+                                </div>
+                                <div class="flex-1 min-w-0">
+                                    <p class="text-xs text-gray-600 font-semibold uppercase tracking-wide mb-1">Detail Perjalanan</p>
+                                    <!-- truncated / full detail -->
+                                    <p class="text-sm text-gray-900 whitespace-pre-line cursor-pointer"
+                                        x-text="truncatedDetail"
+                                        @click="showFullDetail = !showFullDetail"></p>
+                                    <!-- hint when truncated -->
+                                    <p x-show="form.customer_destination_detail.length > 500 && !showFullDetail"
+                                        class="text-secondary font-semibold text-xs cursor-pointer hover:underline mt-1"
+                                        @click="showFullDetail = true">
+                                        (lihat lebih lengkap)
+                                    </p>
                                 </div>
                             </div>
                         </div>
@@ -236,41 +283,56 @@
     document.addEventListener('alpine:init', () => {
         Alpine.data('ticketWizard', (cottagesData, affiliate) => ({
             currentStep: 0,
-            steps: [{
-                    label: 'Data Diri'
-                },
-                {
-                    label: 'Tanggal'
-                },
-                {
-                    label: 'Pondok'
-                },
-                {
-                    label: 'Konfirmasi'
-                }
-            ],
+            steps: [],
             form: {
                 customer_name: '',
                 customer_phone: '',
                 customer_email: '',
                 visit_date: '',
-                departure_date: ''
+                departure_date: '',
+                customer_destination_detail: ''
             },
             selectedCottageId: null,
             submitting: false,
             cottages: [],
+            showFullDetail: false, // toggle for expand detail
+
+            get truncatedDetail() {
+                const detail = this.form.customer_destination_detail;
+                if (!detail) return '';
+                if (this.showFullDetail || detail.length <= 500) {
+                    return detail;
+                }
+                return detail.substring(0, 500) + ' ...';
+            },
+
             init() {
-                // No availability needed, just store cottages as-is
                 this.cottages = cottagesData.map(c => ({
                     ...c
                 }));
                 this.hasCottages = this.cottages.length > 0;
+                this.showFullDetail = false; // reset on init
 
                 this.form.customer_name = '{{ old("customer_name") ?? "" }}';
                 this.form.customer_phone = '{{ old("customer_phone") ?? "" }}';
                 this.form.customer_email = '{{ old("customer_email") ?? "" }}';
                 this.form.visit_date = '{{ old("visit_date") ?? "" }}';
                 this.form.departure_date = '{{ old("departure_date") ?? "" }}';
+                this.form.customer_destination_detail = '{{ old("customer_destination_detail") ?? "" }}';
+
+                this.steps = [{
+                        label: 'Data Diri'
+                    },
+                    {
+                        label: 'Tanggal'
+                    },
+                    {
+                        label: this.hasCottages ? 'Pondok' : 'Detail Perjalanan'
+                    },
+                    {
+                        label: 'Konfirmasi'
+                    }
+                ];
 
                 const oldCottage = '{{ old("cottage_id") ?? "" }}';
                 if (oldCottage && this.hasCottages) this.selectedCottageId = oldCottage;
@@ -281,21 +343,12 @@
                 return 'border-gray-300 text-gray-400';
             },
             nextStep() {
-                // If cottage step is hidden and we are on the step before it, jump over it
-                let next = this.currentStep + 1;
-                if (!this.hasCottages && next === 2) {
-                    next = 3; // skip pondok step
-                }
-                if (next <= 3 && this.validateStep(this.currentStep)) {
-                    this.currentStep = next;
+                if (this.currentStep < 3 && this.validateStep(this.currentStep)) {
+                    this.currentStep++;
                 }
             },
             prevStep() {
-                let prev = this.currentStep - 1;
-                if (!this.hasCottages && prev === 2) {
-                    prev = 1; // skip pondok step going back
-                }
-                if (prev >= 0) this.currentStep = prev;
+                if (this.currentStep > 0) this.currentStep--;
             },
             validateStep(step) {
                 if (step === 0) {
@@ -336,15 +389,35 @@
                     }
                     return true;
                 }
-                // step 2 (pondok) only if hasCottages, else skip
-                if (step === 2 && this.hasCottages) {
-                    if (!this.selectedCottageId) {
-                        Swal.fire({
-                            text: 'Pilih satu pondok.',
-                            icon: 'warning',
-                            confirmButtonColor: '#f97316'
-                        });
-                        return false;
+                // step 2
+                if (step === 2) {
+                    if (this.hasCottages) {
+                        if (!this.selectedCottageId) {
+                            Swal.fire({
+                                text: 'Pilih satu pondok.',
+                                icon: 'warning',
+                                confirmButtonColor: '#f97316'
+                            });
+                            return false;
+                        }
+                    } else {
+                        const detail = this.form.customer_destination_detail.trim();
+                        if (!detail) {
+                            Swal.fire({
+                                text: 'Mohon isi detail perjalanan Anda.',
+                                icon: 'warning',
+                                confirmButtonColor: '#f97316'
+                            });
+                            return false;
+                        }
+                        if (detail.length > 4000) {
+                            Swal.fire({
+                                text: 'Detail perjalanan maksimal 4000 karakter.',
+                                icon: 'warning',
+                                confirmButtonColor: '#f97316'
+                            });
+                            return false;
+                        }
                     }
                     return true;
                 }
@@ -410,14 +483,6 @@
                 } else {
                     return `Pondok yang tersedia di tanggal ${visitStr} sampai ${departStr}`;
                 }
-            },
-            getVisibleNumber(index) {
-                let count = 0;
-                for (let i = 0; i <= index; i++) {
-                    // skip cottage step when no cottages
-                    if (!(i === 2 && !this.hasCottages)) count++;
-                }
-                return count;
             },
             formatDate(dateStr) {
                 if (!dateStr) return '—';

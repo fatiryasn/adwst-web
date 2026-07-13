@@ -293,6 +293,12 @@
         <!-- COTTAGE TAB -->
         <div x-show="activeTab === 'cottages'" x-cloak>
             <h2 class="text-xl font-semibold text-gray-800 mb-6">Pondok</h2>
+            <p class="text-sm text-gray-600 mb-6">
+                Kelola pondok yang tersedia untuk destinasi ini.<br>
+                <strong class="text-red-600">Jika Anda menambahkan setidaknya satu pondok,
+                    maka pada form pemesanan tiket langkah ke‑3 akan menjadi pilihan pondok,
+                    dan kolom "Detail Perjalanan" tidak akan ditampilkan.</strong>
+            </p>
 
             <!-- add cottage form -->
             <form action="{{ route('admin.destination.addCottage', $destination->id) }}" method="POST" class="bg-gray-50 rounded-xl p-4 mb-6">

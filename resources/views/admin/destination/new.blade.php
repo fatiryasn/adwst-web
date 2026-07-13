@@ -168,7 +168,12 @@
             <!-- COTTAGES REPEATER -->
             <div class="border-t pt-6">
                 <h3 class="text-lg font-semibold text-gray-800 mb-3 font-jakarta">Pondok</h3>
-                <p class="text-xs text-gray-500 mb-4">Tambahkan pondok yang tersedia di destinasi ini beserta harganya. Kosongkan jika tidak ada.</p>
+                <p class="text-sm text-gray-600 mb-6">
+                Tambahkan pondok untuk destinasi<br>
+                <strong class="text-red-600">Jika Anda menambahkan setidaknya satu pondok,
+                    maka pada form pemesanan tiket langkah ke‑3 akan menjadi pilihan pondok,
+                    dan kolom "Detail Perjalanan" tidak akan ditampilkan.</strong>
+                </p>
 
                 <div class="space-y-4">
                     <template x-for="(cottage, index) in cottages" :key="index">

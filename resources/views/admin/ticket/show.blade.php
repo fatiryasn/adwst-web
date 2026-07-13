@@ -154,7 +154,9 @@
         </div>
 
         <!-- destination -->
-        <div class="bg-surface rounded-xl shadow border p-5 border-l-4 border-green-400">
+        <div x-data="{ showFullDetail: false, fullDetail: '' }"
+            x-init="fullDetail = $refs.detailSource.textContent.trim()"
+            class="bg-surface rounded-xl shadow border p-5 border-l-4 border-green-400">
             <h3 class="text-lg font-bold text-gray-800 mb-4 font-jakarta flex items-center gap-2">
                 <x-heroicon-o-map-pin class="w-5 h-5 text-green-500" />
                 Destinasi
@@ -167,17 +169,31 @@
                     ({{ $ticket->cottage->name }})
                     @endif
                 </dd>
+
+                @if($ticket->ticket_price > 0)
                 <dt class="text-gray-600 font-nunito">Harga Tiket</dt>
-                <dd>
-                    @if($ticket->ticket_price > 0)
-                    Rp {{ number_format($ticket->ticket_price, 0, ',', '.') }}
-                    @else
-                    —
-                    @endif
-                </dd>
+                <dd>Rp {{ number_format($ticket->ticket_price, 0, ',', '.') }}</dd>
+                @endif
+
                 @if ($ticket->destination->address)
                 <dt class="text-gray-600 font-nunito">Alamat</dt>
                 <dd>{{ $ticket->destination->address }}</dd>
+                @endif
+
+                @if ($ticket->customer_destination_detail)
+                <dt class="text-gray-600 font-nunito">Detail Perjalanan</dt>
+                <dd class="col-span-2 mt-1">
+                    {{-- Hidden element holding the full text --}}
+                    <span x-ref="detailSource" class="hidden">{{ $ticket->customer_destination_detail }}</span>
+                    <p class="text-gray-800 whitespace-pre-line cursor-pointer"
+                        x-text="showFullDetail ? fullDetail : (fullDetail.length > 500 ? fullDetail.substring(0, 500) + ' ...' : fullDetail)"
+                        @click="showFullDetail = !showFullDetail"></p>
+                    <p x-show="fullDetail.length > 500 && !showFullDetail"
+                        class="text-secondary font-semibold text-xs cursor-pointer hover:underline mt-1"
+                        @click="showFullDetail = true">
+                        (lihat lebih lengkap)
+                    </p>
+                </dd>
                 @endif
             </dl>
         </div>
@@ -279,8 +295,6 @@
 
 <!-- hidden pdf qr -->
 <div class="hidden">
-    <img src="https://api.qrserver.com/v1/create-qr-code/?size=180x180&data={{ urlencode($ticket->code) }}"
-        alt="QR Code" id="qrcode-img" crossorigin="anonymous">
     <div id="ticket-data-container"
         data-code="{{ $ticket->code }}"
         data-destination="{{ $ticket->destination->name }}"
@@ -290,7 +304,8 @@
         data-customer="{{ $ticket->customer_name }}"
         data-phone="{{ $ticket->customer_phone }}"
         data-visit-date="{{ $ticket->visit_date ? $ticket->visit_date->format('d M Y') : '' }}"
-        data-departure-date="{{ $ticket->departure_date ? $ticket->departure_date->format('d M Y') : '' }}">
+        data-departure-date="{{ $ticket->departure_date ? $ticket->departure_date->format('d M Y') : '' }}"
+        data-destination-detail="{{ $ticket->customer_destination_detail ?? '' }}">
     </div>
 </div>
 
@@ -407,7 +422,8 @@
                 phone: dataContainer.dataset.phone,
                 visitDate: dataContainer.dataset.visitDate || '',
                 departureDate: dataContainer.dataset.departureDate || '',
-                cottage: dataContainer.dataset.cottage || ''
+                cottage: dataContainer.dataset.cottage || '',
+                destinationDetail: dataContainer.dataset.destinationDetail || ''
             };
 
             window.downloadTicketPDF(ticketData).catch(err => {

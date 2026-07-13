@@ -31,15 +31,17 @@
             <div class="flex h-full flex-col">
                 <!-- header -->
                 <div class="flex h-20 items-center justify-between lg:justify-center px-4 border-b border-gray-200">
-                    <span class="text-xl font-bold text-gray-800">Admin Wisata</span>
-                    <button @click="sidebarOpen = false" class="lg:hidden text-gray-500 hover:text-gray-700">
+                    <div class="flex-shrink-0">
+                        <a href="{{ url('/admin') }}" class="text-xl md:text-2xl font-bold text-secondary">
+                            Admin<span class="font-nunito">Wisata</span>
+                        </a>
+                    </div> <button @click="sidebarOpen = false" class="lg:hidden text-gray-500 hover:text-gray-700">
                         <x-heroicon-o-x-mark class="w-6 h-6" />
                     </button>
                 </div>
 
                 <!-- navigation links -->
                 <nav class="flex-1 px-2 py-6 space-y-3 overflow-y-auto">
-                    <!-- Section label -->
                     <p class="px-3 text-xs font-semibold text-gray-400 uppercase tracking-wider mb-2">Navigasi</p>
 
                     <x-admin.nav-link href="{{ route('admin.dashboard') }}" :active="request()->routeIs('admin.dashboard')">
@@ -62,11 +64,9 @@
                         Afiliasi
                     </x-admin.nav-link>
 
-                    <!-- Spacer -->
                     <div class="pt-4">
                         <p class="px-3 text-xs font-semibold text-gray-400 uppercase tracking-wider mb-2">Aksi Cepat</p>
 
-                        <!-- Tambah Destinasi  -->
                         <a href="{{ route('admin.destination.new') }}"
                             class="flex items-center px-3 py-2 text-sm font-medium text-secondary hover:bg-secondary/10 rounded-r-lg transition-colors">
                             <x-heroicon-o-plus class="w-5 h-5 mr-3" />

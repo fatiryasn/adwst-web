@@ -27,8 +27,8 @@ export async function downloadTicketPDF(data) {
     const doc = new jsPDF("p", "mm", "a4");
 
     //colors
-    const primaryColor = [249, 115, 22]; 
-    const darkColor = [31, 41, 55]; 
+    const primaryColor = [249, 115, 22];
+    const darkColor = [31, 41, 55];
     const mutedColor = [107, 114, 128];
     const lightBg = [249, 250, 251];
 
@@ -60,15 +60,30 @@ export async function downloadTicketPDF(data) {
         console.error("QR generation failed:", e);
     }
 
-    //ticket detail
+    //detail text
+    let detailText = data.destinationDetail || "";
+    if (detailText.length > 600) {
+        detailText = detailText.substring(0, 600) + "...";
+    }
+
+    //ticket detail card height calculation
+    let cardHeight = 72;
+    if (detailText) {
+        const maxLineWidth = 120;
+        doc.setFontSize(9);
+        const detailLines = doc.splitTextToSize(detailText, maxLineWidth);
+        cardHeight += 10 + detailLines.length * 5;
+        doc.setFontSize(11);
+    }
+
     const cardY = 120;
     doc.setFillColor(...lightBg);
-    doc.roundedRect(15, cardY, 180, 72, 4, 4, "F");
+    doc.roundedRect(15, cardY, 180, cardHeight, 4, 4, "F");
 
     doc.setFont("Helvetica", "bold");
     doc.setFontSize(16);
     doc.setTextColor(...darkColor);
-    doc.text("Detail Perjalanan", 20, cardY + 10);
+    doc.text("Detail Tiket", 20, cardY + 10);
 
     doc.setDrawColor(209, 213, 219);
     doc.line(20, cardY + 14, 190, cardY + 14);
@@ -112,8 +127,31 @@ export async function downloadTicketPDF(data) {
         y += 8;
     }
 
+    if (detailText) {
+        y += 2;
+        doc.setFont("Helvetica", "normal");
+        doc.setTextColor(...mutedColor);
+        doc.text("Detail Perjalanan:", labelX, y);
+
+        const maxLineWidth = 120;
+        doc.setFontSize(9);
+        const lines = doc.splitTextToSize(detailText, maxLineWidth);
+        doc.setTextColor(...darkColor);
+
+        lines.forEach((line) => {
+            if (y > 250) {
+                doc.addPage();
+                y = 20;
+            }
+            doc.text(line, valueX, y);
+            y += 5;
+        });
+
+        doc.setFontSize(11);
+    }
+
     //validity notice
-    const noticeY = cardY + 80;
+    const noticeY = y + 8;
     doc.setFont("Helvetica", "italic");
     doc.setFontSize(9);
     doc.setTextColor(...mutedColor);

@@ -23,6 +23,7 @@ return new class extends Migration
             $table->string('customer_name', 100);
             $table->string('customer_phone', 20);
             $table->string('customer_email', 150)->nullable();
+            $table->text('customer_destination_detail')->nullable();
 
             $table->date('visit_date');
             $table->date('departure_date');

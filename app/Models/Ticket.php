@@ -26,6 +26,7 @@ class Ticket extends Model
         'customer_name',
         'customer_phone',
         'customer_email',
+        'customer_destination_detail',
         'visit_date',
         'departure_date',
         'referral_source',

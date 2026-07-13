@@ -23,7 +23,7 @@
 
             <!-- QR code -->
             <div class="mb-8">
-                <p class="text-sm text-gray-500 mb-3">QR Code Tiket (hanya valid setelah pembayaran berhasil)</p>
+                <p class="text-sm text-gray-600 mb-3">QR Code Tiket (hanya valid setelah pembayaran berhasil)</p>
                 <div id="qrcode-container" class="inline-block bg-white p-2 rounded-xl shadow-sm border">
                     <canvas id="qrcode-canvas" width="180" height="180"></canvas>
                 </div>
@@ -39,44 +39,66 @@
                 data-phone="{{ $ticket->customer_phone }}"
                 data-visit-date="{{ $ticket->visit_date ? $ticket->visit_date->format('d M Y') : '' }}"
                 data-departure-date="{{ $ticket->departure_date ? $ticket->departure_date->format('d M Y') : '' }}"
-                data-cottage="{{ $ticket->cottage->name ?? '' }}">
+                data-cottage="{{ $ticket->cottage->name ?? '' }}"
+                data-destination-detail="{{ $ticket->customer_destination_detail ?? '' }}">
 
+                <!-- kode tiket -->
                 <div class="bg-gray-50 rounded-xl px-4 py-3 mb-3 {{ $ticket->ticket_price > 0 ? 'flex items-center justify-between' : 'text-center' }}">
                     <div>
-                        <p class="text-xs text-gray-500 uppercase tracking-wide">Kode Tiket</p>
+                        <p class="text-xs text-gray-600 uppercase tracking-wide">Kode Tiket</p>
                         <p class="font-jakarta font-bold text-secondary text-lg">{{ $ticket->code }}</p>
                     </div>
                     @if($ticket->ticket_price > 0)
                     <div class="text-right">
-                        <p class="text-xs text-gray-500 uppercase tracking-wide">Total</p>
+                        <p class="text-xs text-gray-600 uppercase tracking-wide">Total</p>
                         <p class="font-jakarta font-bold text-gray-900 text-lg">Rp {{ number_format($ticket->ticket_price, 0, ',', '.') }}</p>
                     </div>
                     @endif
                 </div>
 
-                <div class="grid grid-cols-2 gap-3">
-                    <div class="bg-gray-50 rounded-xl px-4 py-3">
-                        <p class="text-xs text-gray-500 uppercase tracking-wide mb-2">Data Pemesan</p>
-                        <div class="space-y-1">
-                            <p class="text-sm font-medium text-gray-800">{{ $ticket->customer_name }}</p>
-                            <p class="text-sm text-gray-600">{{ $ticket->customer_phone }}</p>
+                <!-- detail tiket -->
+                <div class="bg-gray-50 rounded-xl px-4 py-4 text-left">
+                    <p class="text-xs text-gray-600 uppercase tracking-wide mb-3">Detail Tiket</p>
+
+                    <div class="space-y-2 text-sm">
+                        <div>
+                            <span class="text-gray-600">Pemesan :</span>
+                            <span class="font-medium text-gray-800 ml-1">
+                                {{ $ticket->customer_name }} ({{ $ticket->customer_phone }})
+                            </span>
                         </div>
-                    </div>
-                    <div class="bg-gray-50 rounded-xl px-4 py-3">
-                        <p class="text-xs text-gray-500 uppercase tracking-wide mb-2">Detail Perjalanan</p>
-                        <div class="space-y-1">
-                            <p class="text-sm font-medium text-gray-800">
+                        <div>
+                            <span class="text-gray-600">Destinasi :</span>
+                            <span class="font-medium text-gray-800 ml-1">
                                 {{ $ticket->destination->name }}
                                 @if($ticket->cottage)
                                 ({{ $ticket->cottage->name }})
                                 @endif
-                            </p> @if ($ticket->visit_date || $ticket->departure_date)
-                            <p class="text-sm text-gray-600">
+                            </span>
+                        </div>
+                        @if ($ticket->visit_date || $ticket->departure_date)
+                        <div>
+                            <span class="text-gray-600">Tanggal :</span>
+                            <span class="font-medium text-gray-800 ml-1">
                                 {{ $ticket->visit_date?->format('d M Y') ?? '' }}
                                 {{ $ticket->departure_date ? ' → ' . $ticket->departure_date->format('d M Y') : '' }}
-                            </p>
-                            @endif
+                            </span>
                         </div>
+                        @endif
+
+                        @if ($ticket->customer_destination_detail)
+                        <div class="mt-3 pt-3 border-t border-gray-200">
+                            <span class="text-gray-600 block mb-1">Detail Perjalanan :</span>
+                            <p id="destination-detail-text" class="text-gray-900 cursor-pointer whitespace-pre-line">
+                                {{ Str::limit($ticket->customer_destination_detail, 500) }}
+                                @if (strlen($ticket->customer_destination_detail) > 500)
+                                <span class="text-secondary font-semibold text-xs cursor-pointer hover:underline ml-1">
+                                    (lihat lebih lengkap)
+                                </span>
+                                @endif
+                            </p>
+                        </div>
+                        @endif
                     </div>
                 </div>
             </div>
@@ -131,6 +153,25 @@
     @include('partials.sweetalert')
 
     <script>
+        //toggle full detail text
+        document.addEventListener('DOMContentLoaded', function() {
+            const detailText = document.getElementById('destination-detail-text');
+            const container = document.getElementById('ticket-data-container');
+            if (detailText && container) {
+                const fullText = container.dataset.destinationDetail;
+                if (fullText && fullText.length > 500) {
+                    detailText.addEventListener('click', function() {
+                        if (detailText.textContent.includes('(lihat lebih lengkap)')) {
+                            detailText.innerHTML = fullText;
+                        } else {
+                            detailText.innerHTML = fullText.substring(0, 500) +
+                                ' <span class="text-secondary font-semibold text-xs cursor-pointer hover:underline ml-1">(lihat lebih lengkap)</span>';
+                        }
+                    });
+                }
+            }
+        });
+
         //generate qr code
         document.addEventListener('DOMContentLoaded', async function() {
             const container = document.getElementById('ticket-data-container');
@@ -165,7 +206,8 @@
                 phone: container.dataset.phone,
                 visitDate: container.dataset.visitDate || '',
                 departureDate: container.dataset.departureDate || '',
-                cottage: container.dataset.cottage || ''
+                cottage: container.dataset.cottage || '',
+                destinationDetail: container.dataset.destinationDetail || ''
             };
 
             window.downloadTicketPDF(ticketData).catch(err => {
@@ -177,7 +219,7 @@
             });
         });
 
-        //confirm back home
+        //confirm return
         function confirmBackHome() {
             Swal.fire({
                 text: 'Pastikan anda sudah menyimpan informasi tiket anda sebelum meninggalkan halaman ini!',
