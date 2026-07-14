@@ -129,8 +129,7 @@ class TicketController extends Controller
 
     public function success()
     {
-        // $ticketId = session()->pull('ticket_success_id');
-        $ticketId = "019f5ad8-8210-70df-b31b-03a05068e157";
+        $ticketId = session()->pull('ticket_success_id');
         if (!$ticketId) {
             return redirect()->route('destinations.index');
         }
