@@ -6,6 +6,7 @@ use App\Http\Controllers\Controller;
 use App\Models\Affiliate;
 use App\Models\Cottage;
 use App\Models\Destination;
+use App\Models\Setting;
 use App\Models\Ticket;
 use Illuminate\Http\Request;
 use Illuminate\Support\Str;
@@ -34,7 +35,7 @@ class TicketController extends Controller
     //render buy ticket page
     public function create()
     {
-        // Load the first active destination instead of using the slug
+        // [LOAD FIRST DESTINATION]
         $destination = Destination::with(['cottages' => function ($q) {
             $q->with(['tickets' => function ($q) {
                 $q->whereNotIn('ticket_status', ['cancelled', 'expired'])
@@ -126,16 +127,18 @@ class TicketController extends Controller
         return redirect()->route('destinations.tickets.success', $destination->slug);
     }
 
-    //render success page
     public function success()
     {
-        $ticketId = session()->pull('ticket_success_id');
+        // $ticketId = session()->pull('ticket_success_id');
+        $ticketId = "019f5ad8-8210-70df-b31b-03a05068e157";
         if (!$ticketId) {
             return redirect()->route('destinations.index');
         }
 
         $ticket = Ticket::with('destination')->findOrFail($ticketId);
-        return view('landing.destination-buy-success', compact('ticket'));
+        $whatsappNumber = Setting::where('key', 'whatsapp_number')->value('value') ?? '6281234567890';
+
+        return view('landing.destination-buy-success', compact('ticket', 'whatsappNumber'));
     }
 
     //HELPER: generate ticket code

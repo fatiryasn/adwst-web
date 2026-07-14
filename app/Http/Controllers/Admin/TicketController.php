@@ -33,7 +33,11 @@ class TicketController extends Controller
 
         //search
         if ($search) {
-            $query->where('code', 'like', '%' . $search . '%');
+            $query->where(function ($q) use ($search) {
+                $q->whereRaw('LOWER(code) LIKE ?', ['%' . strtolower($search) . '%'])
+                    ->orWhereRaw('LOWER(customer_name) LIKE ?', ['%' . strtolower($search) . '%'])
+                    ->orWhereRaw('LOWER(customer_phone) LIKE ?', ['%' . strtolower($search) . '%']);
+            });
         }
 
         //sorting
@@ -177,6 +181,7 @@ class TicketController extends Controller
             ->with('swal_success', 'Tiket berhasil check‑in.');
     }
 
+    //update note
     public function updateNotes(Request $request, $id)
     {
         $ticket = Ticket::findOrFail($id);

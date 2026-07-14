@@ -83,6 +83,7 @@
                 ];
                 @endphp
                 <span class="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-semibold border {{ $paymentColors[$ticket->payment_status] }} uppercase w-fit">
+                    <x-heroicon-s-banknotes class="w-4 h-4 mr-1.5" />
                     {{ ucfirst($ticket->payment_status) }}
                 </span>
             </div>
@@ -98,13 +99,14 @@
                 ];
                 @endphp
                 <span class="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-semibold border {{ $ticketColors[$ticket->ticket_status] }} uppercase w-fit">
+                    <x-heroicon-s-ticket class="w-4 h-4 mr-1.5" />
                     {{ match($ticket->ticket_status) {
-                    'active'     => 'Active',
-                    'checked_in' => 'Checked In',
-                    'expired'    => 'Expired',
-                    'cancelled'  => 'Cancelled',
-                    default      => ucfirst(str_replace('_', ' ', $ticket->ticket_status))
-                } }}
+            'active'     => 'Active',
+            'checked_in' => 'Checked In',
+            'expired'    => 'Expired',
+            'cancelled'  => 'Cancelled',
+            default      => ucfirst(str_replace('_', ' ', $ticket->ticket_status))
+        } }}
                 </span>
             </div>
 

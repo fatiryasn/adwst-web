@@ -150,27 +150,11 @@ export async function downloadTicketPDF(data) {
         doc.setFontSize(11);
     }
 
-    //validity notice
-    const noticeY = y + 8;
-    doc.setFont("Helvetica", "italic");
-    doc.setFontSize(9);
-    doc.setTextColor(...mutedColor);
-    doc.text(
-        "• Tiket hanya valid ketika pembayaran anda dikonfirmasi oleh Admin.",
-        20,
-        noticeY,
-    );
-    doc.text(
-        "• Tunjukkan tiket ini ketika sudah berada di lokasi.",
-        20,
-        noticeY + 5,
-    );
-
     //footer
     doc.setDrawColor(229, 231, 235);
     doc.line(15, 255, 195, 255);
 
-    doc.setFont("Helvetica", "oblique");
+    doc.setFont("Helvetica", "normal");
     doc.setFontSize(9);
     doc.text(
         "Terima kasih telah mempercayakan perjalanan Anda bersama AdminWisata.",
@@ -180,7 +164,7 @@ export async function downloadTicketPDF(data) {
     );
     doc.setFont("Helvetica", "normal");
     doc.text(
-        `Waktu Cetak otomatis: ${new Date().toLocaleString("id-ID")}`,
+        `Waktu cetak tiket: ${new Date().toLocaleString("id-ID")}`,
         105,
         267,
         { align: "center" },

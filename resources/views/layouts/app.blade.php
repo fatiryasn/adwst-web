@@ -163,11 +163,11 @@
                     <ul class="space-y-2 text-sm text-gray-100">
                         <li class="flex items-center gap-2">
                             <x-heroicon-o-envelope class="w-4 h-4 text-secondary" />
-                            <span>info@gokaro.id</span>
+                            <span>-</span>
                         </li>
                         <li class="flex items-center gap-2">
                             <x-heroicon-o-phone class="w-4 h-4 text-secondary" />
-                            <span>+62 812 3456 7890</span>
+                            <span>-</span>
                         </li>
                     </ul>
                 </div>

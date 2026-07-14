@@ -74,4 +74,7 @@ Route::prefix('admin')->name('admin.')->middleware(['auth', 'can:admin'])->group
     Route::put('/profile', [ProfileController::class, 'update'])->name('profile.update');
     Route::get('/settings', [SettingsController::class, 'index'])->name('settings.index');
     Route::post('/settings/rotate-api-key', [SettingsController::class, 'rotateApiKey'])->name('settings.rotate-api-key');
+    Route::put('/settings/whatsapp', [SettingsController::class, 'updateWhatsApp'])
+        ->name('settings.update-whatsapp')
+        ->middleware('auth');
 });

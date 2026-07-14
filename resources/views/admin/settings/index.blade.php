@@ -50,6 +50,78 @@
         </p>
     </div>
 
+    <!-- WHATSAPP NUMBER SECTION -->
+    <div x-data="{ editWhatsApp: false, submittingWhatsApp: false }" class="bg-surface rounded-xl shadow border border-gray-200 p-6">
+        <h2 class="text-xl font-semibold text-gray-800 mb-6 font-jakarta flex items-center gap-2">
+            <x-heroicon-o-phone class="w-6 h-6 text-secondary" />
+            Nomor WhatsApp
+        </h2>
+        <p class="text-sm text-gray-600 mb-4">
+            Nomor WhatsApp yang akan menerima pesan pembayaran dari pelanggan.
+        </p>
+
+        <form action="{{ route('admin.settings.update-whatsapp') }}" method="POST" class="space-y-4"
+            x-on:submit="submittingWhatsApp = true">
+            @csrf
+            @method('PUT')
+
+            <div>
+                <label for="whatsapp_number" class="block text-sm font-medium text-gray-400 mb-1 uppercase">Nomor</label>
+                <div x-show="!editWhatsApp" class="w-full border border-transparent py-1 text-gray-800">
+                    {{ $whatsappNumber }}
+                </div>
+                <div x-show="editWhatsApp" x-cloak>
+                    <input type="text" name="whatsapp_number" id="whatsapp_number"
+                        value="{{ old('whatsapp_number', $whatsappNumber) }}"
+                        class="w-full border border-gray-200 rounded-lg shadow px-3 py-2 focus:outline-none"
+                        placeholder="62xxxxx"
+                        required>
+                    <p class="text-xs text-gray-600 mt-2">
+                        Gunakan format 62xxxxx
+                    </p>
+                    @error('whatsapp_number')
+                    <p class="mt-1 text-sm text-red-600">{{ $message }}</p>
+                    @enderror
+                </div>
+            </div>
+
+            <div class="flex justify-end gap-3 pt-2">
+                <button type="button" x-show="!editWhatsApp"
+                    @click="editWhatsApp = true"
+                    class="bg-secondary hover:bg-secondary/80 text-white font-medium px-5 py-2 rounded-md transition inline-flex items-center gap-2">
+                    <x-heroicon-o-pencil-square class="w-5 h-5" />
+                    Ubah Nomor
+                </button>
+
+                <template x-if="editWhatsApp">
+                    <div class="flex gap-3">
+                        <button type="button" @click="editWhatsApp = false"
+                            :disabled="submittingWhatsApp"
+                            class="bg-gray-200 hover:bg-gray-300 text-gray-700 font-medium px-5 py-2 rounded-md transition disabled:opacity-50 disabled:cursor-not-allowed inline-flex items-center gap-2">
+                            <x-heroicon-o-x-mark class="w-5 h-5" />
+                            Batal
+                        </button>
+                        <button type="submit"
+                            :disabled="submittingWhatsApp"
+                            class="bg-secondary hover:bg-secondary/80 text-white font-medium px-7 py-2 rounded-md transition disabled:opacity-50 disabled:cursor-not-allowed inline-flex items-center gap-2">
+                            <span x-show="!submittingWhatsApp" class="inline-flex items-center gap-2">
+                                <x-heroicon-o-check-circle class="w-5 h-5" />
+                                Simpan
+                            </span>
+                            <span x-show="submittingWhatsApp" class="inline-flex items-center gap-2">
+                                <svg class="animate-spin h-4 w-4 text-white" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24">
+                                    <circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"></circle>
+                                    <path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
+                                </svg>
+                                Menyimpan...
+                            </span>
+                        </button>
+                    </div>
+                </template>
+            </div>
+        </form>
+    </div>
+
     <!-- PROFILE SECTION -->
     <div x-data="{ editMode: false, submitting: false }" class="bg-surface rounded-xl shadow border border-gray-200 p-6">
         <h2 class="text-xl font-semibold text-gray-800 mb-6 font-jakarta flex items-center gap-2">

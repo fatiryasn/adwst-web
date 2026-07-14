@@ -10,24 +10,17 @@
     @stack('styles')
 </head>
 
-<body class="antialiased bg-secondary">
+<body class="antialiased bg-secondary font-poppins">
     <div class="py-12 max-w-3xl mx-auto px-4 sm:px-6 lg:px-8">
         <!-- card -->
         <div class="bg-surface rounded-2xl shadow-lg border border-gray-200 p-6 sm:p-10 text-center">
 
+            <!-- header -->
             <div class="inline-flex items-center justify-center w-20 h-20 rounded-full bg-green-100 text-green-600 mb-6">
                 <x-heroicon-o-check-circle class="w-10 h-10" />
             </div>
-            <h1 class="text-3xl font-bold text-gray-900 font-jakarta mb-2">Pemesanan Berhasil!</h1>
-            <p class="text-gray-600 mb-8">Lakukan pembayaran via whatsapp. Silakan simpan tiket ini segera.</p>
-
-            <!-- QR code -->
-            <div class="mb-8">
-                <p class="text-sm text-gray-600 mb-3">QR Code Tiket (hanya valid setelah pembayaran berhasil)</p>
-                <div id="qrcode-container" class="inline-block bg-white p-2 rounded-xl shadow-sm border">
-                    <canvas id="qrcode-canvas" width="180" height="180"></canvas>
-                </div>
-            </div>
+            <h1 class="text-2xl md:text-3xl font-bold text-gray-900 font-jakarta mb-2">Pemesanan Berhasil!</h1>
+            <p class="text-gray-600 mb-8 text-sm md:text-base">Lakukan pembayaran via whatsapp</p>
 
             <!-- ticket details -->
             <div id="ticket-data-container" class="mb-6"
@@ -43,7 +36,7 @@
                 data-destination-detail="{{ $ticket->customer_destination_detail ?? '' }}">
 
                 <!-- kode tiket -->
-                <div class="bg-gray-50 rounded-xl px-4 py-3 mb-3 {{ $ticket->ticket_price > 0 ? 'flex items-center justify-between' : 'text-center' }}">
+                <div class="bg-gray-50 rounded-xl md:px-4 py-3 mb-3 {{ $ticket->ticket_price > 0 ? 'flex items-center justify-between' : 'text-center' }}">
                     <div>
                         <p class="text-xs text-gray-600 uppercase tracking-wide">Kode Tiket</p>
                         <p class="font-jakarta font-bold text-secondary text-lg">{{ $ticket->code }}</p>
@@ -56,9 +49,9 @@
                     @endif
                 </div>
 
-                <!-- detail tiket -->
-                <div class="bg-gray-50 rounded-xl px-4 py-4 text-left">
-                    <p class="text-xs text-gray-600 uppercase tracking-wide mb-3">Detail Tiket</p>
+                <!-- detail pemesanan -->
+                <div class="bg-gray-50 rounded-xl px-1 md:px-4 py-4 text-left">
+                    <p class="text-xs text-gray-600 uppercase font-jakarta tracking-wide mb-3">Detail Pemesanan</p>
 
                     <div class="space-y-2 text-sm">
                         <div>
@@ -88,10 +81,10 @@
 
                         @if ($ticket->customer_destination_detail)
                         <div class="mt-3 pt-3 border-t border-gray-200">
-                            <span class="text-gray-600 block mb-1">Detail Perjalanan :</span>
+                            <span class="text-gray-600 block mb-1 uppercase text-xs font-jakarta tracking-wide">Detail Perjalanan</span>
                             <p id="destination-detail-text" class="text-gray-900 cursor-pointer whitespace-pre-line">
-                                {{ Str::limit($ticket->customer_destination_detail, 500) }}
-                                @if (strlen($ticket->customer_destination_detail) > 500)
+                                {{ Str::limit($ticket->customer_destination_detail, 300) }}
+                                @if (strlen($ticket->customer_destination_detail) > 300)
                                 <span class="text-secondary font-semibold text-xs cursor-pointer hover:underline ml-1">
                                     (lihat lebih lengkap)
                                 </span>
@@ -104,42 +97,76 @@
             </div>
 
             <!-- whatsapp payment cta -->
+            @php
+            //destination string
+            $destName = $ticket->destination->name;
+            if ($ticket->cottage) {
+            $destName .= ' (' . $ticket->cottage->name . ')';
+            }
+
+            //date handling
+            $visit = $ticket->visit_date;
+            $departure = $ticket->departure_date;
+            if ($visit && $departure) {
+            if ($visit->format('Y-m-d') === $departure->format('Y-m-d')) {
+            $dateDisplay = $visit->format('d M Y');
+            } else {
+            $dateDisplay = $visit->format('d M Y') . ' → ' . $departure->format('d M Y');
+            }
+            } elseif ($visit) {
+            $dateDisplay = $visit->format('d M Y');
+            } elseif ($departure) {
+            $dateDisplay = $departure->format('d M Y');
+            } else {
+            $dateDisplay = '';
+            }
+
+            //bullet points
+            $message = "Halo AdminWisata, saya ingin melakukan pembayaran untuk tiket {$ticket->code}\n";
+            $message .= "• Kode: {$ticket->code}\n";
+            $message .= "• Pemesan: {$ticket->customer_name} ({$ticket->customer_phone})\n";
+            $message .= "• Destinasi: {$destName}" . ($dateDisplay ? " - {$dateDisplay}" : '');
+
+            //whatsapp encode
+            $whatsappUrl = "https://wa.me/{$whatsappNumber}?text=" . rawurlencode($message);
+            @endphp
+
             <div class="bg-amber-50 border border-amber-200 rounded-xl p-5 text-left mb-6">
-                <h4 class="font-jakarta font-semibold text-amber-800 flex items-center gap-2">
+                <h4 class="font-jakarta font-semibold text-amber-800 flex items-center gap-2 text-sm md:text-base">
                     <x-heroicon-o-exclamation-triangle class="w-5 h-5" />
                     Pembayaran via WhatsApp
                 </h4>
-                <p class="mt-2 text-sm text-amber-700">
-                    Agar tiket valid digunakan, lanjutkan pembayaran dengan menghubungi kami di WhatsApp. Gunakan kode tiket di atas sebagai referensi.
+                <p class="mt-2 text-xs md:text-sm text-amber-700">
+                    Lakukan pembayaran via whatsapp untuk mendapatkan tiket anda.
                 </p>
-                <a href="https://wa.me/{{ env('WHATSAPP_NUMBER', '6281234567890') }}?text=Halo%20AdminWisata%2C%20saya%20ingin%20melakukan%20pembayaran%20untuk%20tiket%20{{ urlencode($ticket->code)}}%20-%20{{urlencode($ticket->destination->name)}}"
+
+                <div class="flex items-center gap-2 text-sm text-green-600 mt-4">
+                    <x-heroicon-o-phone class="w-4 h-4" />
+                    <span class="font-medium">+{{ $whatsappNumber }}</span>
+                </div>
+
+                <a href="{{ $whatsappUrl }}"
                     target="_blank"
-                    class="inline-flex items-center mt-4 bg-green-500 hover:bg-green-600 text-white font-semibold px-6 py-3 rounded-lg transition font-poppins">
+                    class="inline-flex items-center mt-1.5 bg-green-500 hover:bg-green-600 text-white font-semibold px-6 py-3 rounded-lg transition font-poppins text-sm md:text-base">
                     Bayar via WhatsApp
                     <x-heroicon-o-arrow-right class="w-5 h-5 ml-2" />
                 </a>
             </div>
 
-            <!-- download warning -->
+            <!-- warning -->
             <div class="bg-red-50 border border-red-200 rounded-xl p-5 text-left mb-6">
-                <h4 class="font-jakarta font-semibold text-red-800 flex items-center gap-2 mb-2">
+                <h4 class="font-jakarta font-semibold text-red-800 flex items-center gap-2 mb-2 text-sm md:text-base">
                     <x-heroicon-o-exclamation-triangle class="w-5 h-5" />
                     Penting! Halaman ini hanya tampil satu kali.
                 </h4>
-                <ul class="list-disc list-inside text-sm text-red-700 space-y-1 font-nunito">
-                    <li>Segera <strong>simpan PDF tiket</strong> atau screenshot halaman ini.</li>
+                <ul class="list-disc list-inside text-xs md:text-sm text-red-700 space-y-1 font-nunito">
+                    <li>Segera <strong>catat atau screenshot</strong> informasi tiket Anda.</li>
                     <li>Jika Anda menutup halaman ini, Anda <strong>tidak dapat mengaksesnya kembali</strong>.</li>
-                    <li>PDF tiket akan otomatis terunduh. Jika tidak, klik tombol di bawah.</li>
                 </ul>
             </div>
 
             <!-- action buttons -->
             <div class="flex flex-col sm:flex-row justify-center gap-4 mt-6">
-                <button id="download-pdf-btn"
-                    class="inline-flex items-center justify-center bg-secondary hover:bg-secondary/80 text-white font-semibold px-6 py-3 rounded-lg transition font-poppins">
-                    <x-heroicon-o-arrow-down-tray class="w-5 h-5 mr-2" />
-                    Unduh Tiket (PDF)
-                </button>
                 <button id="back-home-btn"
                     onclick="confirmBackHome()"
                     class="inline-flex items-center justify-center bg-gray-200 hover:bg-gray-300 text-gray-700 font-semibold px-6 py-3 rounded-lg transition font-poppins">
@@ -153,7 +180,7 @@
     @include('partials.sweetalert')
 
     <script>
-        //toggle full detail text
+        //toggle full detail
         document.addEventListener('DOMContentLoaded', function() {
             const detailText = document.getElementById('destination-detail-text');
             const container = document.getElementById('ticket-data-container');
@@ -172,54 +199,7 @@
             }
         });
 
-        //generate qr code
-        document.addEventListener('DOMContentLoaded', async function() {
-            const container = document.getElementById('ticket-data-container');
-            const canvas = document.getElementById('qrcode-canvas');
-            if (container && canvas) {
-                const code = container.dataset.code;
-                try {
-                    const qrDataUrl = await window.generateQRDataURL(code);
-                    const ctx = canvas.getContext('2d');
-                    const img = new Image();
-                    img.onload = () => {
-                        ctx.drawImage(img, 0, 0, canvas.width, canvas.height);
-                    };
-                    img.src = qrDataUrl;
-                } catch (e) {
-                    console.error('QR generation failed:', e);
-                }
-            }
-        });
-
-        //pdf ticket download
-        document.getElementById('download-pdf-btn').addEventListener('click', function() {
-            const container = document.getElementById('ticket-data-container');
-            if (!container) return;
-
-            const ticketData = {
-                code: container.dataset.code,
-                destination: container.dataset.destination,
-                price: container.dataset.price,
-                priceRaw: parseFloat(container.dataset.priceRaw) || 0,
-                customer: container.dataset.customer,
-                phone: container.dataset.phone,
-                visitDate: container.dataset.visitDate || '',
-                departureDate: container.dataset.departureDate || '',
-                cottage: container.dataset.cottage || '',
-                destinationDetail: container.dataset.destinationDetail || ''
-            };
-
-            window.downloadTicketPDF(ticketData).catch(err => {
-                console.error('PDF generation failed:', err);
-                Swal.fire({
-                    icon: 'error',
-                    text: 'Tidak dapat membuat PDF. Silakan coba lagi.'
-                });
-            });
-        });
-
-        //confirm return
+        //confirm ticket
         function confirmBackHome() {
             Swal.fire({
                 text: 'Pastikan anda sudah menyimpan informasi tiket anda sebelum meninggalkan halaman ini!',

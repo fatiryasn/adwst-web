@@ -136,7 +136,7 @@
                             <span class="text-xs text-gray-400">—</span>
                             @endif
                         </td>
-                        <!-- Referral -->
+                        <!-- referral -->
                         <td class="px-6 py-4 border-r border-gray-200 max-w-[200px] truncate">
                             @if ($ticket->affiliate)
                             <span class="inline-flex items-center rounded text-sm font-medium text-secondary truncate">
@@ -150,29 +150,53 @@
                             <span class="text-xs text-gray-400">—</span>
                             @endif
                         </td>
-                        <!-- Status (both payment and ticket) -->
+                        <!-- payment & ticket status -->
                         <td class="px-6 py-4 border-r border-gray-200">
                             <div class="flex flex-col gap-1 uppercase">
                                 {{-- Payment Status --}}
                                 @if ($ticket->payment_status == 'pending')
-                                <span class="inline-flex px-2 py-1 text-xs font-semibold rounded-full bg-blue-100 text-blue-800">pending</span>
+                                <span class="inline-flex items-center px-2 py-1 text-xs font-semibold rounded-full bg-blue-100 text-blue-800">
+                                    <x-heroicon-s-banknotes class="w-4 h-4 mr-1" />
+                                    pending
+                                </span>
                                 @elseif ($ticket->payment_status == 'paid')
-                                <span class="inline-flex px-2 py-1 text-xs font-semibold rounded-full bg-green-100 text-green-800">paid</span>
+                                <span class="inline-flex items-center px-2 py-1 text-xs font-semibold rounded-full bg-green-100 text-green-800">
+                                    <x-heroicon-s-banknotes class="w-4 h-4 mr-1" />
+                                    paid
+                                </span>
                                 @elseif ($ticket->payment_status == 'failed')
-                                <span class="inline-flex px-2 py-1 text-xs font-semibold rounded-full bg-red-100 text-red-800">failed</span>
+                                <span class="inline-flex items-center px-2 py-1 text-xs font-semibold rounded-full bg-red-100 text-red-800">
+                                    <x-heroicon-s-banknotes class="w-4 h-4 mr-1" />
+                                    failed
+                                </span>
                                 @elseif ($ticket->payment_status == 'refunded')
-                                <span class="inline-flex px-2 py-1 text-xs font-semibold rounded-full bg-gray-100 text-gray-800">refunded</span>
+                                <span class="inline-flex items-center px-2 py-1 text-xs font-semibold rounded-full bg-gray-100 text-gray-800">
+                                    <x-heroicon-s-banknotes class="w-4 h-4 mr-1" />
+                                    refunded
+                                </span>
                                 @endif
 
                                 {{-- Ticket Status --}}
                                 @if ($ticket->ticket_status == 'active')
-                                <span class="inline-flex px-2 py-1 text-xs font-semibold rounded-full bg-blue-100 text-blue-800">active</span>
+                                <span class="inline-flex items-center px-2 py-1 text-xs font-semibold rounded-full bg-blue-100 text-blue-800">
+                                    <x-heroicon-s-ticket class="w-4 h-4 mr-1" />
+                                    active
+                                </span>
                                 @elseif ($ticket->ticket_status == 'checked_in')
-                                <span class="inline-flex px-2 py-1 text-xs font-semibold rounded-full bg-green-100 text-green-800">checked-in</span>
+                                <span class="inline-flex items-center px-2 py-1 text-xs font-semibold rounded-full bg-green-100 text-green-800">
+                                    <x-heroicon-s-ticket class="w-4 h-4 mr-1" />
+                                    checked-in
+                                </span>
                                 @elseif ($ticket->ticket_status == 'expired')
-                                <span class="inline-flex px-2 py-1 text-xs font-semibold rounded-full bg-gray-100 text-gray-800">expired</span>
+                                <span class="inline-flex items-center px-2 py-1 text-xs font-semibold rounded-full bg-gray-100 text-gray-800">
+                                    <x-heroicon-s-ticket class="w-4 h-4 mr-1" />
+                                    expired
+                                </span>
                                 @elseif ($ticket->ticket_status == 'cancelled')
-                                <span class="inline-flex px-2 py-1 text-xs font-semibold rounded-full bg-red-100 text-red-800">cancelled</span>
+                                <span class="inline-flex items-center px-2 py-1 text-xs font-semibold rounded-full bg-red-100 text-red-800">
+                                    <x-heroicon-s-ticket class="w-4 h-4 mr-1" />
+                                    cancelled
+                                </span>
                                 @endif
                             </div>
                         </td>
