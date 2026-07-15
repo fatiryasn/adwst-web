@@ -34,12 +34,11 @@
                             <span class="text-sm">{{ $destination->address }}</span>
                         </div>
                         @endif
-                        <p class="text-sm text-gray-500 mt-4">Harga pondok akan ditampilkan setelah memilih.</p>
                     </div>
                 </div>
             </div>
 
-            <!-- RIGHT: Multi‑step Form -->
+            <!-- RIGHT -->
             <div x-data="ticketWizard({{ $destination->cottages->toJson() }}, {{ isset($affiliate) ? json_encode(['code' => $affiliate->code]) : 'null' }}) ">
                 <form action="{{ route('destinations.tickets.store', $destination->slug) }}" method="POST"
                     class="bg-surface rounded-2xl shadow-lg border border-gray-100 p-6 sm:p-8"

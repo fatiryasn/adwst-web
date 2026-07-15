@@ -22,112 +22,80 @@
             <h1 class="text-2xl md:text-3xl font-bold text-gray-900 font-jakarta mb-2">Pemesanan Berhasil!</h1>
             <p class="text-gray-600 mb-8 text-sm md:text-base">Lakukan pembayaran via whatsapp</p>
 
-            <!-- ticket details -->
-            <div id="ticket-data-container" class="mb-6"
-                data-code="{{ $ticket->code }}"
-                data-destination="{{ $ticket->destination->name }}"
-                data-price="Rp {{ number_format($ticket->ticket_price, 0, ',', '.') }}"
-                data-price-raw="{{ $ticket->ticket_price }}"
-                data-customer="{{ $ticket->customer_name }}"
-                data-phone="{{ $ticket->customer_phone }}"
-                data-visit-date="{{ $ticket->visit_date ? $ticket->visit_date->format('d M Y') : '' }}"
-                data-departure-date="{{ $ticket->departure_date ? $ticket->departure_date->format('d M Y') : '' }}"
-                data-cottage="{{ $ticket->cottage->name ?? '' }}"
-                data-destination-detail="{{ $ticket->customer_destination_detail ?? '' }}">
+            <!-- detail pemesanan -->
+            <div class="bg-gray-50 rounded-xl px-1 md:px-4 py-4 text-left mb-6">
+                <p class="text-xs text-gray-600 uppercase font-jakarta tracking-wide mb-3">Detail Pemesanan</p>
 
-                <!-- kode tiket -->
-                <div class="bg-gray-50 rounded-xl md:px-4 py-3 mb-3 {{ $ticket->ticket_price > 0 ? 'flex items-center justify-between' : 'text-center' }}">
+                <div class="space-y-2 text-sm">
                     <div>
-                        <p class="text-xs text-gray-600 uppercase tracking-wide">Kode Tiket</p>
-                        <p class="font-jakarta font-bold text-secondary text-lg">{{ $ticket->code }}</p>
+                        <span class="text-gray-600">Pemesan :</span>
+                        <span class="font-medium text-gray-800 ml-1">
+                            {{ $ticket->customer_name }} ({{ $ticket->customer_phone }})
+                        </span>
                     </div>
-                    @if($ticket->ticket_price > 0)
-                    <div class="text-right">
-                        <p class="text-xs text-gray-600 uppercase tracking-wide">Total</p>
-                        <p class="font-jakarta font-bold text-gray-900 text-lg">Rp {{ number_format($ticket->ticket_price, 0, ',', '.') }}</p>
+                    <div>
+                        <span class="text-gray-600">Destinasi :</span>
+                        <span class="font-medium text-gray-800 ml-1">
+                            {{ $ticket->destination->name }}
+                            @if($ticket->cottage)
+                            ({{ $ticket->cottage->name }})
+                            @endif
+                        </span>
+                    </div>
+                    @if ($ticket->visit_date || $ticket->departure_date)
+                    <div>
+                        <span class="text-gray-600">Tanggal :</span>
+                        <span class="font-medium text-gray-800 ml-1">
+                            {{ $ticket->visit_date?->format('d M Y') ?? '' }}
+                            {{ $ticket->departure_date ? ' → ' . $ticket->departure_date->format('d M Y') : '' }}
+                        </span>
                     </div>
                     @endif
-                </div>
 
-                <!-- detail pemesanan -->
-                <div class="bg-gray-50 rounded-xl px-1 md:px-4 py-4 text-left">
-                    <p class="text-xs text-gray-600 uppercase font-jakarta tracking-wide mb-3">Detail Pemesanan</p>
-
-                    <div class="space-y-2 text-sm">
-                        <div>
-                            <span class="text-gray-600">Pemesan :</span>
-                            <span class="font-medium text-gray-800 ml-1">
-                                {{ $ticket->customer_name }} ({{ $ticket->customer_phone }})
+                    @if ($ticket->customer_destination_detail)
+                    <div class="mt-3 pt-3 border-t border-gray-200">
+                        <span class="text-gray-600 block mb-1 uppercase text-xs font-jakarta tracking-wide">Detail Perjalanan</span>
+                        <p id="destination-detail-text" class="text-gray-900 cursor-pointer whitespace-pre-line"
+                            data-full-detail="{{ addslashes($ticket->customer_destination_detail) }}">
+                            {{ Str::limit($ticket->customer_destination_detail, 300) }}
+                            @if (strlen($ticket->customer_destination_detail) > 300)
+                            <span class="text-secondary font-semibold text-xs cursor-pointer hover:underline ml-1">
+                                (lihat lebih lengkap)
                             </span>
-                        </div>
-                        <div>
-                            <span class="text-gray-600">Destinasi :</span>
-                            <span class="font-medium text-gray-800 ml-1">
-                                {{ $ticket->destination->name }}
-                                @if($ticket->cottage)
-                                ({{ $ticket->cottage->name }})
-                                @endif
-                            </span>
-                        </div>
-                        @if ($ticket->visit_date || $ticket->departure_date)
-                        <div>
-                            <span class="text-gray-600">Tanggal :</span>
-                            <span class="font-medium text-gray-800 ml-1">
-                                {{ $ticket->visit_date?->format('d M Y') ?? '' }}
-                                {{ $ticket->departure_date ? ' → ' . $ticket->departure_date->format('d M Y') : '' }}
-                            </span>
-                        </div>
-                        @endif
-
-                        @if ($ticket->customer_destination_detail)
-                        <div class="mt-3 pt-3 border-t border-gray-200">
-                            <span class="text-gray-600 block mb-1 uppercase text-xs font-jakarta tracking-wide">Detail Perjalanan</span>
-                            <p id="destination-detail-text" class="text-gray-900 cursor-pointer whitespace-pre-line">
-                                {{ Str::limit($ticket->customer_destination_detail, 300) }}
-                                @if (strlen($ticket->customer_destination_detail) > 300)
-                                <span class="text-secondary font-semibold text-xs cursor-pointer hover:underline ml-1">
-                                    (lihat lebih lengkap)
-                                </span>
-                                @endif
-                            </p>
-                        </div>
-                        @endif
+                            @endif
+                        </p>
                     </div>
+                    @endif
                 </div>
             </div>
 
             <!-- whatsapp payment cta -->
             @php
-            //destination string
             $destName = $ticket->destination->name;
             if ($ticket->cottage) {
             $destName .= ' (' . $ticket->cottage->name . ')';
             }
 
-            //date handling
+            $dateDisplay = '';
             $visit = $ticket->visit_date;
             $departure = $ticket->departure_date;
             if ($visit && $departure) {
-            if ($visit->format('Y-m-d') === $departure->format('Y-m-d')) {
-            $dateDisplay = $visit->format('d M Y');
-            } else {
-            $dateDisplay = $visit->format('d M Y') . ' → ' . $departure->format('d M Y');
-            }
+            $dateDisplay = ($visit->format('Y-m-d') === $departure->format('Y-m-d'))
+            ? $visit->format('d M Y')
+            : $visit->format('d M Y') . ' → ' . $departure->format('d M Y');
             } elseif ($visit) {
             $dateDisplay = $visit->format('d M Y');
             } elseif ($departure) {
             $dateDisplay = $departure->format('d M Y');
-            } else {
-            $dateDisplay = '';
             }
 
-            //bullet points
-            $message = "Halo AdminWisata, saya ingin melakukan pembayaran untuk tiket {$ticket->code}\n";
-            $message .= "• Kode: {$ticket->code}\n";
-            $message .= "• Pemesan: {$ticket->customer_name} ({$ticket->customer_phone})\n";
-            $message .= "• Destinasi: {$destName}" . ($dateDisplay ? " - {$dateDisplay}" : '');
+            $orderTime = $ticket->created_at->setTimezone('Asia/Jakarta')->format('d M Y, H:i');
 
-            //whatsapp encode
+            $message = "Halo AdminWisata, saya ingin melakukan pembayaran untuk tiket:\n";
+            $message .= "• Pemesan: {$ticket->customer_name} ({$ticket->customer_phone})\n";
+            $message .= "• Destinasi: {$destName}" . ($dateDisplay ? " - {$dateDisplay}" : '') . "\n";
+            $message .= "• Waktu Pemesanan: {$orderTime}";
+
             $whatsappUrl = "https://wa.me/{$whatsappNumber}?text=" . rawurlencode($message);
             @endphp
 
@@ -180,18 +148,17 @@
     @include('partials.sweetalert')
 
     <script>
-        //toggle full detail
+        //toggle destination detail
         document.addEventListener('DOMContentLoaded', function() {
             const detailText = document.getElementById('destination-detail-text');
-            const container = document.getElementById('ticket-data-container');
-            if (detailText && container) {
-                const fullText = container.dataset.destinationDetail;
-                if (fullText && fullText.length > 500) {
+            if (detailText) {
+                const fullText = detailText.dataset.fullDetail;
+                if (fullText && fullText.length > 300) {
                     detailText.addEventListener('click', function() {
                         if (detailText.textContent.includes('(lihat lebih lengkap)')) {
                             detailText.innerHTML = fullText;
                         } else {
-                            detailText.innerHTML = fullText.substring(0, 500) +
+                            detailText.innerHTML = fullText.substring(0, 300) +
                                 ' <span class="text-secondary font-semibold text-xs cursor-pointer hover:underline ml-1">(lihat lebih lengkap)</span>';
                         }
                     });
@@ -199,7 +166,7 @@
             }
         });
 
-        //confirm ticket
+        //confirm return
         function confirmBackHome() {
             Swal.fire({
                 text: 'Pastikan anda sudah menyimpan informasi tiket anda sebelum meninggalkan halaman ini!',

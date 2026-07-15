@@ -56,9 +56,10 @@
             <div class="flex items-center gap-3 border border-gray-200 bg-surface rounded-md shadow px-5 py-2 focus:outline-none">
                 <x-heroicon-s-magnifying-glass class="w-5 h-5 text-gray-400" />
                 <input type="text" name="search" value="{{ $search }}"
-                    placeholder="Cari kode tiket..."
+                    placeholder="Cari kode / nama / no.telp"
                     x-data="{}"
                     @input.debounce.500ms="$el.form.submit()"
+                    autocomplete="off"
                     class="outline-none bg-transparent">
             </div>
 

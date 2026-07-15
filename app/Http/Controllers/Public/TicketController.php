@@ -127,6 +127,7 @@ class TicketController extends Controller
         return redirect()->route('destinations.tickets.success', $destination->slug);
     }
 
+    //render success page
     public function success()
     {
         $ticketId = session()->pull('ticket_success_id');
