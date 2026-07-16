@@ -12,7 +12,10 @@ class TicketController extends Controller
     public function showByCode($code)
     {
         $ticket = Ticket::where('code', $code)
-            ->with('destination:id,name,address,ticket_price')
+            ->with([
+                'destination:id,name,address',
+                'cottage:id,name,price'
+            ])
             ->first();
 
         if (!$ticket) {
@@ -31,6 +34,7 @@ class TicketController extends Controller
                 'customer_name'   => $ticket->customer_name,
                 'customer_phone'  => $ticket->customer_phone,
                 'customer_email'  => $ticket->customer_email,
+                'customer_destination_detail'  => $ticket->customer_destination_detail,
                 'visit_date'      => $ticket->visit_date?->toDateString(),
                 'departure_date'  => $ticket->departure_date?->toDateString(),
                 'ticket_price'    => $ticket->ticket_price,
@@ -39,7 +43,11 @@ class TicketController extends Controller
                 'destination'     => $ticket->destination ? [
                     'name'    => $ticket->destination->name,
                     'address' => $ticket->destination->address,
-                    'price'   => $ticket->destination->ticket_price,
+                ] : null,
+                'cottage' => $ticket->cottage ? [
+                    'id'    => $ticket->cottage->id,
+                    'name'  => $ticket->cottage->name,
+                    'price' => $ticket->cottage->price,
                 ] : null,
                 'checked_in_at'   => $ticket->checked_in_at?->toDateTimeString(),
                 'created_at'      => $ticket->created_at->toDateTimeString(),
